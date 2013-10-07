@@ -13,9 +13,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 {
 	Camera cam;
 	private boolean ligthBulbState = true;
-	private boolean wiggleLights = false;
-	private float wiggleValue = 0f;
 	private float count = 0;
+    FloatBuffer boxBuffer;
+    FloatBuffer floorBuffer;
 		
 	@Override
 	public void create() {
@@ -31,26 +31,38 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
 		Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
 		Gdx.gl11.glLoadIdentity();
-		Gdx.glu.gluPerspective(Gdx.gl11, 90, 1.333333f, 1.0f, 30.0f);
+		Gdx.glu.gluPerspective(Gdx.gl11, 90, 1.33333f, 1f, 300f);
 
 		Gdx.gl11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
 
-		FloatBuffer vertexBuffer = BufferUtils.newFloatBuffer(72);
-		vertexBuffer.put(new float[] {-0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
+		boxBuffer = BufferUtils.newFloatBuffer(72);
+		boxBuffer.put(new float[] {-0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
 									  0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
+
 									  0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
 									  0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
+
 									  0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
 									  -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
+
 									  -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
 									  -0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
+
 									  -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f,
 									  0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f,
+
 									  -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,
 									  0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f});
-		vertexBuffer.rewind();
+		boxBuffer.rewind();
 
-		Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, vertexBuffer);
+        floorBuffer = BufferUtils.newFloatBuffer(12);
+        floorBuffer.put(new float[] {   0.5f, 0f, 0.5f,
+                                        -0.5f, 0f, 0.5f,
+                                        0.5f, 0f, -0.5f,
+                                        -0.5f, 0f, -0.5f
+                                    });
+        floorBuffer.rewind();
+
 		cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
 	}
 
@@ -68,12 +80,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 	
 	private void update() {
 		
-		if(this.wiggleLights){
-			count += 0.03;
-			this.wiggleValue = (float) Math.sin(count) * 10;
-		}
-		
-		
 		
 		if(this.ligthBulbState)
 			Gdx.gl11.glEnable(GL11.GL_LIGHT0);
@@ -82,16 +88,16 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		
 		float deltaTime = Gdx.graphics.getDeltaTime();
 
-		if(Gdx.input.isKeyPressed(Input.Keys.UP)) 
-			cam.pitch(-90.0f * deltaTime);
+		//if(Gdx.input.isKeyPressed(Input.Keys.UP))
+		//	cam.pitch(-90.0f * deltaTime);
 		
-		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) 
-			cam.pitch(90.0f * deltaTime);
+		//if(Gdx.input.isKeyPressed(Input.Keys.DOWN))
+		//	cam.pitch(90.0f * deltaTime);
 		
-		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) 
+		if(Gdx.input.isKeyPressed(Input.Keys.A))
 			cam.yaw(-90.0f * deltaTime);
 		
-		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) 
+		if(Gdx.input.isKeyPressed(Input.Keys.D))
 			cam.yaw(90.0f * deltaTime);
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.W)) 
@@ -100,11 +106,11 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		if(Gdx.input.isKeyPressed(Input.Keys.S)) 
 			cam.slide(0.0f, 0.0f, 10.0f * deltaTime);
 		
-		if(Gdx.input.isKeyPressed(Input.Keys.A)) 
-			cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
+		//if(Gdx.input.isKeyPressed(Input.Keys.A))
+		//	cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
 		
-		if(Gdx.input.isKeyPressed(Input.Keys.D)) 
-			cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
+		//if(Gdx.input.isKeyPressed(Input.Keys.D))
+		//	cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.R)) 
 			cam.slide(0.0f, 10.0f * deltaTime, 0.0f);
@@ -114,22 +120,30 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 	}
 	
 	private void drawBox() {
+        Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, boxBuffer);
+
 		Gdx.gl11.glNormal3f(0.0f, 0.0f, -1.0f);
 		Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
+
 		Gdx.gl11.glNormal3f(1.0f, 0.0f, 0.0f);
 		Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 4, 4);
+
 		Gdx.gl11.glNormal3f(0.0f, 0.0f, 1.0f);
 		Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 8, 4);
+
 		Gdx.gl11.glNormal3f(-1.0f, 0.0f, 0.0f);
 		Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 12, 4);
+
 		Gdx.gl11.glNormal3f(0.0f, 1.0f, 0.0f);
 		Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 16, 4);
+
 		Gdx.gl11.glNormal3f(0.0f, -1.0f, 0.0f);
 		Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 20, 4);
 	}
 	
 	private void drawFloor(float size) {
-		for(float fx = 0.0f; fx < size; fx += 1.0) {
+        Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, floorBuffer);
+		/*for(float fx = 0.0f; fx < size; fx += 1.0) {
 			for(float fz = 0.0f; fz < size; fz += 1.0) {
 				Gdx.gl11.glPushMatrix();
 				Gdx.gl11.glTranslatef(fx, 1.0f, fz);
@@ -137,7 +151,14 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 				drawBox();
 				Gdx.gl11.glPopMatrix();
 			}
-		}
+		} */
+
+        Gdx.gl11.glPushMatrix();
+        Gdx.gl11.glTranslatef(0f, 0f, 0f);
+        Gdx.gl11.glScalef(size, 0, size);
+        Gdx.gl11.glNormal3f(0.0f, 1.0f, 0.0f);
+        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
+        Gdx.gl11.glPopMatrix();
 	}
 	
 	private void display() {
@@ -148,7 +169,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		float[] lightDiffuse = {1.0f, 1.0f, 1.0f, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightDiffuse, 0);
 
-		float[] lightPosition = {this.wiggleValue, 10.0f, 15.0f, 1.0f};
+		float[] lightPosition = {1.0f, 10.0f, 15.0f, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPosition, 0);
 
 		// Configure light 1
@@ -198,10 +219,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		if(arg0 == Input.Keys.L){
 			this.ligthBulbState = this.ligthBulbState ? false:true;
 		}
-		if(arg0 == Input.Keys.O){
-			this.wiggleLights = this.wiggleLights ? false:true;
-		}
-		
 		return false;
 	}
 
