@@ -142,7 +142,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 	}
 	
 	private void drawFloor(float size) {
-        Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, floorBuffer);
 		/*for(float fx = 0.0f; fx < size; fx += 1.0) {
 			for(float fz = 0.0f; fz < size; fz += 1.0) {
 				Gdx.gl11.glPushMatrix();
@@ -151,36 +150,39 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 				drawBox();
 				Gdx.gl11.glPopMatrix();
 			}
-		} */
+		}*/
+
+        Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, floorBuffer);
 
         Gdx.gl11.glPushMatrix();
         Gdx.gl11.glTranslatef(0f, 0f, 0f);
-        Gdx.gl11.glScalef(size, 0, size);
-        Gdx.gl11.glNormal3f(0.0f, 1.0f, 0.0f);
+        Gdx.gl11.glScalef(size, size, size);
+        Gdx.gl11.glNormal3f(0f, 1f, 0f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
+        //drawBox();
         Gdx.gl11.glPopMatrix();
 	}
 	
 	private void display() {
 		Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
 		cam.setModelViewMatrix();
-				
+
 		// Configure light 0
 		float[] lightDiffuse = {1.0f, 1.0f, 1.0f, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightDiffuse, 0);
 
-		float[] lightPosition = {1.0f, 10.0f, 15.0f, 1.0f};
+		float[] lightPosition = {cam.eye.x, cam.eye.y, cam.eye.z, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPosition, 0);
-
+        /*
 		// Configure light 1
 		float[] lightDiffuse1 = {0.5f, 0.5f, 0.5f, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightDiffuse1, 0);
 
 		float[] lightPosition1 = {-5.0f, -10.0f, -15.0f, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition1, 0);
-		
+		 */
 		// Set material on the cube.
-		float[] materialDiffuse = {0.2f, .3f, 0.6f, 1.0f};
+		float[] materialDiffuse = {1f, 0.3f, 0.6f, 1.0f};
 		Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, materialDiffuse, 0);
 
 		// Draw floor!
