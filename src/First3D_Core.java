@@ -30,7 +30,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     private FloatBuffer vertexBuffer;
 
-    private boolean flymode = false;
+    private boolean flightmode = false;
 
 
     @Override
@@ -71,6 +71,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, this.vertexBuffer);
         cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
+        cam.eye.x = cam.eye.y = cam.eye.z = 2;
 
         initializemaze();
     }
@@ -112,25 +113,53 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         if(Gdx.input.isKeyPressed(Input.Keys.D))
             cam.yaw(120.0f * deltaTime);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.W))
+        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
             cam.slide(0.0f, 0.0f, -10.0f * deltaTime);
+            if (collision())
+                cam.slide(0.0f, 0.0f, 10.0f * deltaTime);
+        }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.S))
+        if(Gdx.input.isKeyPressed(Input.Keys.S)) {
             cam.slide(0.0f, 0.0f, 10.0f * deltaTime);
+            if (collision())
+                cam.slide(0.0f, 0.0f, -10.0f * deltaTime);
+        }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.Q))
+        if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
+            if (collision())
+                cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
+        }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.E))
+        if(Gdx.input.isKeyPressed(Input.Keys.E)) {
             cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
+            if (collision())
+                cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
+        }
 
-        if (flymode){
+        if (flightmode){
             if(Gdx.input.isKeyPressed(Input.Keys.R))
                 cam.slide(0.0f, 10.0f * deltaTime, 0.0f);
 
             if(Gdx.input.isKeyPressed(Input.Keys.F))
                 cam.slide(0.0f, -10.0f * deltaTime, 0.0f);
         }
+    }
+
+    private boolean collision(){
+        if (flightmode){
+            return false;
+        }
+
+        if(cam.eye.x%cellsize < 1.5f || cam.eye.x%cellsize > 6.5f){
+            return true;
+        }
+
+        if(cam.eye.z%cellsize < 1.5f || cam.eye.z%cellsize > 6.5f){
+            return true;
+        }
+
+        return false;
     }
 
     private void drawBox(float length, float height, float width, float x, float y, float z) {
@@ -251,8 +280,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     @Override
     public boolean keyDown(int arg0) {
         if (arg0 == Input.Keys.P){
-            if (flymode){
-                flymode = false;
+            if (flightmode){
+                flightmode = false;
 
                 // now place the eye in the dead center of the current box
                 cam.eye.y = wallheight/2;
@@ -260,7 +289,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
                 cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + cellsize/2;
             }
             else {
-                flymode = true;
+                flightmode = true;
             }
         }
         return false;
