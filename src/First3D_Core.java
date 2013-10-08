@@ -79,8 +79,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         for (int i = 0; i < (int)cellsperside; i++){
             for (int j = 0; j < (int)cellsperside; j++){
                 System.out.println("i: " + i + " j: " + j);
-                cells[i][j].east = true;
-                cells[i][j].north = true;
+                cells[i][j] = new Cell(true, true);
             }
         }
     }
@@ -170,10 +169,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
             for (int j = 0; j < cellsperside; j++){
                 //cell[i][j]
                 if (cells[i][j].east){
-                    drawBox(cellsize,1f,1f,cellwidth*i+cellwidth/2, height/2, cellwidth*j+cellwidth/2);
+                    drawBox(cellsize,height,0.1f,cellwidth*i+cellwidth/2, height/2, cellwidth*j+cellwidth);
                 }
                 if (cells[i][j].north){
-                    //drawBox(1f,1f,1f,cellwidth*i+cellwidth/2, height/2, cellwidth*j+cellwidth/2);
+                    drawBox(0.1f,height,cellsize,cellwidth*i+cellwidth, height/2, cellwidth*j+cellwidth/2);
                 }
 
             }
