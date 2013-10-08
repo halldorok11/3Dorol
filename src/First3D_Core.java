@@ -12,6 +12,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 
 
 public class First3D_Core implements ApplicationListener, InputProcessor
@@ -22,9 +23,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     FloatBuffer boxBuffer;
     FloatBuffer floorBuffer;
 
-    private SpriteBatch batch;
-    private Texture texture;
+    private Texture floortexture;
+    private Texture walltexture;
     private TextureRegion region;
+    private Flat floor;
 		
 	@Override
 	public void create() {
@@ -74,13 +76,14 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
 		cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
 
-        Texture.setEnforcePotImages(false);
-        texture = new Texture(Gdx.files.internal("graphics/grass.jpg"));
+        Gdx.gl11.glEnable(GL_TEXTURE_2D);
+        floortexture = new Texture(Gdx.files.internal("graphics/grass-texture-2.jpg"));
+        floor = new Flat(16,16,0,0,0,10);
     }
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
+        floortexture.dispose();
 		
 	}
 
@@ -163,10 +166,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 				Gdx.gl11.glPopMatrix();
 			}
 		}*/
-        //int buff[] = new int[4];
-
+        /*
         Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, floorBuffer);
-        //Gdx.gl11.glGenTextures(3, buff, 4);
 
         Gdx.gl11.glPushMatrix();
         Gdx.gl11.glTranslatef(0f, 0f, 0f);
@@ -175,6 +176,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
         //drawBox();
         Gdx.gl11.glPopMatrix();
+        */
+
+        floor.render(floortexture);
 	}
 	
 	private void display() {
@@ -185,7 +189,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		float[] lightDiffuse = {1.0f, 1.0f, 1.0f, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightDiffuse, 0);
 
-		float[] lightPosition = {cam.eye.x, cam.eye.y, cam.eye.z, 1.0f};
+		float[] lightPosition = {0, 10, 0, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPosition, 0);
         /*
 		// Configure light 1
@@ -196,12 +200,11 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition1, 0);
 		 */
 		// Set material on the cube.
-		float[] materialDiffuse = {1f, 0.3f, 0.6f, 1.0f};
-		Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_DIFFUSE, materialDiffuse, 0);
+		//float[] materialDiffuse = {1f, 0.3f, 0.6f, 1.0f};
+		//Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_DIFFUSE, materialDiffuse, 0);
 
 		// Draw floor!
 		drawFloor(50);
-
 	}
 
 	@Override
