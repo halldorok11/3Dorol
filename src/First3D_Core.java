@@ -10,6 +10,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import sun.security.pkcs11.wrapper.CK_SSL3_KEY_MAT_PARAMS;
 
 
 public class First3D_Core implements ApplicationListener, InputProcessor
@@ -28,6 +29,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private OrthographicCamera secondCamera;
 
     private FloatBuffer vertexBuffer;
+
+    private boolean flymode = false;
 
 
     @Override
@@ -78,7 +81,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //populate the walls in the maze
         for (int i = 0; i < (int)cellsperside; i++){
             for (int j = 0; j < (int)cellsperside; j++){
-                System.out.println("i: " + i + " j: " + j);
                 cells[i][j] = new Cell(true, true);
             }
         }
@@ -105,10 +107,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         float deltaTime = Gdx.graphics.getDeltaTime();
 
         if(Gdx.input.isKeyPressed(Input.Keys.A))
-            cam.yaw(-90.0f * deltaTime);
+            cam.yaw(-120.0f * deltaTime);
 
         if(Gdx.input.isKeyPressed(Input.Keys.D))
-            cam.yaw(90.0f * deltaTime);
+            cam.yaw(120.0f * deltaTime);
 
         if(Gdx.input.isKeyPressed(Input.Keys.W))
             cam.slide(0.0f, 0.0f, -10.0f * deltaTime);
@@ -122,11 +124,13 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         if(Gdx.input.isKeyPressed(Input.Keys.E))
             cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.R))
-            cam.slide(0.0f, 10.0f * deltaTime, 0.0f);
+        if (flymode){
+            if(Gdx.input.isKeyPressed(Input.Keys.R))
+                cam.slide(0.0f, 10.0f * deltaTime, 0.0f);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.F))
-            cam.slide(0.0f, -10.0f * deltaTime, 0.0f);
+            if(Gdx.input.isKeyPressed(Input.Keys.F))
+                cam.slide(0.0f, -10.0f * deltaTime, 0.0f);
+        }
     }
 
     private void drawBox(float length, float height, float width, float x, float y, float z) {
@@ -225,7 +229,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         this.spriteBatch.begin();
         font.setColor(1f,1f,1f,1f);
-        font.draw(this.spriteBatch, String.format("Camera position (%.2f, %.2f, %.2f)",this.cam.eye.x, this.cam.eye.y, this.cam.eye.z), -400, -280);
+        font.draw(this.spriteBatch, String.format("Camera position: (%.2f, %.2f, %.2f)",this.cam.eye.x, this.cam.eye.y, this.cam.eye.z), -400, -280);
+        font.draw(this.spriteBatch, String.format("Current cell: (%d, %d)",(int)(cam.eye.x/cellsize), (int)(cam.eye.z/cellsize)), -400, -300);
         this.spriteBatch.end();
     }
 
@@ -245,7 +250,19 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     @Override
     public boolean keyDown(int arg0) {
-        // TODO Auto-generated method stub
+        if (arg0 == Input.Keys.P){
+            if (flymode){
+                flymode = false;
+
+                // now place the eye in the dead center of the current box
+                cam.eye.y = wallheight/2;
+                cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + cellsize/2;
+                cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + cellsize/2;
+            }
+            else {
+                flymode = true;
+            }
+        }
         return false;
     }
 
