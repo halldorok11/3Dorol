@@ -1,7 +1,12 @@
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
+import com.badlogic.gdx.assets.loaders.TextureAtlasLoader;
 import com.badlogic.gdx.graphics.GL11;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -16,6 +21,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 	private float count = 0;
     FloatBuffer boxBuffer;
     FloatBuffer floorBuffer;
+
+    private SpriteBatch batch;
+    private Texture texture;
+    private TextureRegion region;
 		
 	@Override
 	public void create() {
@@ -27,7 +36,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		Gdx.gl11.glEnable(GL11.GL_LIGHT1);
 		Gdx.gl11.glEnable(GL11.GL_DEPTH_TEST);
 		
-		Gdx.gl11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		Gdx.gl11.glClearColor(0.34f, 0.8f, 0.92f, 1.0f); //Sky blue
 
 		Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
 		Gdx.gl11.glLoadIdentity();
@@ -64,7 +73,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         floorBuffer.rewind();
 
 		cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
-	}
+
+        Texture.setEnforcePotImages(false);
+        texture = new Texture(Gdx.files.internal("graphics/grass.jpg"));
+    }
 
 	@Override
 	public void dispose() {
@@ -151,8 +163,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 				Gdx.gl11.glPopMatrix();
 			}
 		}*/
+        //int buff[] = new int[4];
 
         Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, floorBuffer);
+        //Gdx.gl11.glGenTextures(3, buff, 4);
 
         Gdx.gl11.glPushMatrix();
         Gdx.gl11.glTranslatef(0f, 0f, 0f);
@@ -183,10 +197,11 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		 */
 		// Set material on the cube.
 		float[] materialDiffuse = {1f, 0.3f, 0.6f, 1.0f};
-		Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, materialDiffuse, 0);
+		Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_DIFFUSE, materialDiffuse, 0);
 
 		// Draw floor!
 		drawFloor(50);
+
 	}
 
 	@Override
