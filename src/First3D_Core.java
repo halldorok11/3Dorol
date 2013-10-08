@@ -102,12 +102,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 			Gdx.gl11.glDisable(GL11.GL_LIGHT0);
 		
 		float deltaTime = Gdx.graphics.getDeltaTime();
-
-		//if(Gdx.input.isKeyPressed(Input.Keys.UP))
-		//	cam.pitch(-90.0f * deltaTime);
-		
-		//if(Gdx.input.isKeyPressed(Input.Keys.DOWN))
-		//	cam.pitch(90.0f * deltaTime);
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.A))
 			cam.yaw(-90.0f * deltaTime);
@@ -120,12 +114,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.S)) 
 			cam.slide(0.0f, 0.0f, 10.0f * deltaTime);
-		
-		//if(Gdx.input.isKeyPressed(Input.Keys.A))
-		//	cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
-		
-		//if(Gdx.input.isKeyPressed(Input.Keys.D))
-		//	cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.R)) 
 			cam.slide(0.0f, 10.0f * deltaTime, 0.0f);
@@ -157,27 +145,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 	}
 	
 	private void drawFloor(float size) {
-		/*for(float fx = 0.0f; fx < size; fx += 1.0) {
-			for(float fz = 0.0f; fz < size; fz += 1.0) {
-				Gdx.gl11.glPushMatrix();
-				Gdx.gl11.glTranslatef(fx, 1.0f, fz);
-				Gdx.gl11.glScalef(0.95f, 0.95f, 0.95f);
-				drawBox();
-				Gdx.gl11.glPopMatrix();
-			}
-		}*/
-        /*
-        Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, floorBuffer);
-
-        Gdx.gl11.glPushMatrix();
-        Gdx.gl11.glTranslatef(0f, 0f, 0f);
-        Gdx.gl11.glScalef(size, size, size);
-        Gdx.gl11.glNormal3f(0f, 1f, 0f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
-        //drawBox();
-        Gdx.gl11.glPopMatrix();
-        */
-
         floor.render(floortexture);
 	}
 	
@@ -189,19 +156,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		float[] lightDiffuse = {1.0f, 1.0f, 1.0f, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightDiffuse, 0);
 
-		float[] lightPosition = {0, 10, 0, 1.0f};
+		float[] lightPosition = {cam.eye.x, cam.eye.y, cam.eye.z, 1.0f};
 		Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPosition, 0);
-        /*
-		// Configure light 1
-		float[] lightDiffuse1 = {0.5f, 0.5f, 0.5f, 1.0f};
-		Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightDiffuse1, 0);
-
-		float[] lightPosition1 = {-5.0f, -10.0f, -15.0f, 1.0f};
-		Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition1, 0);
-		 */
-		// Set material on the cube.
-		//float[] materialDiffuse = {1f, 0.3f, 0.6f, 1.0f};
-		//Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_DIFFUSE, materialDiffuse, 0);
 
 		// Draw floor!
 		drawFloor(50);
