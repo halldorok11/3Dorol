@@ -115,48 +115,96 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
             cam.slide(0.0f, 0.0f, -10.0f * deltaTime);
-            if (collision())
-                cam.slide(0.0f, 0.0f, 10.0f * deltaTime);
+            if (collisionX())
+                rollbackX();
+            if (collisionZ())
+                rollbackZ();
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.S)) {
             cam.slide(0.0f, 0.0f, 10.0f * deltaTime);
-            if (collision())
-                cam.slide(0.0f, 0.0f, -10.0f * deltaTime);
+            if (collisionX())
+                rollbackX();
+            if (collisionZ())
+                rollbackZ();
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
-            if (collision())
-                cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
+            if (collisionX())
+                rollbackX();
+            if (collisionZ())
+                rollbackZ();
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
             cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
-            if (collision())
-                cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
+            if (collisionX())
+                rollbackX();
+            if (collisionZ())
+                rollbackZ();
         }
 
         if (flightmode){
             if(Gdx.input.isKeyPressed(Input.Keys.R))
                 cam.slide(0.0f, 10.0f * deltaTime, 0.0f);
 
-            if(Gdx.input.isKeyPressed(Input.Keys.F))
+                if(Gdx.input.isKeyPressed(Input.Keys.F))
                 cam.slide(0.0f, -10.0f * deltaTime, 0.0f);
         }
     }
 
-    private boolean collision(){
-        if (flightmode){
-            return false;
+    private void rollbackX(){
+        if (cam.eye.x%cellsize < 1.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + 1.5f;
+        if (cam.eye.x%cellsize > 6.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + 6.5f;
+    }
+
+    private void rollbackZ(){
+        if (cam.eye.z%cellsize < 1.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + 1.5f;
+        if (cam.eye.z%cellsize > 6.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + 6.5f;
+    }
+
+    private boolean collisionX(){
+        if (flightmode) return false;
+
+        int x = (int)(cam.eye.x/cellsize);
+        int z =(int)(cam.eye.z/cellsize);
+
+        if (x == cellsperside-1){
+            if (cam.eye.x%cellsize > 6.5f) return true;
+        }
+        else if (cells[x][z].north){
+            if(cam.eye.x%cellsize > 6.5f) return true;
         }
 
-        if(cam.eye.x%cellsize < 1.5f || cam.eye.x%cellsize > 6.5f){
-            return true;
+        if (x == 0){
+            if (cam.eye.x%cellsize < 1.5) return true;
+        }
+        else if (cells[x-1][z].north){
+            if(cam.eye.x%cellsize < 1.5f) return true;
         }
 
-        if(cam.eye.z%cellsize < 1.5f || cam.eye.z%cellsize > 6.5f){
-            return true;
+        return false;
+    }
+
+    private boolean collisionZ(){
+        if (flightmode) return false;
+
+        int x = (int)(cam.eye.x/cellsize);
+        int z =(int)(cam.eye.z/cellsize);
+
+        if (z == cellsperside-1){
+            if (cam.eye.z%cellsize > 6.5f) return true;
+        }
+        else if (cells[x][z].east){
+            if(cam.eye.z%cellsize > 6.5f) return true;
+        }
+
+        if (z == 0){
+            if (cam.eye.z%cellsize < 1.5) return true;
+        }
+        else if (cells[x][z-1].east){
+            if(cam.eye.z%cellsize < 1.5f) return true;
         }
 
         return false;
@@ -283,10 +331,17 @@ public class First3D_Core implements ApplicationListener, InputProcessor
             if (flightmode){
                 flightmode = false;
 
+                //if the eye is outside the maze throw it inside.
+                if (cam.eye.x < 0) cam.eye.x = 0.1f;
+                if (cam.eye.x > mapsize) cam.eye.x = mapsize-0.1f;
+                if (cam.eye.z < 0) cam.eye.z = 0.1f;
+                if (cam.eye.z > mapsize) cam.eye.z = mapsize-0.1f;
+
                 // now place the eye in the dead center of the current box
                 cam.eye.y = wallheight/2;
                 cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + cellsize/2;
                 cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + cellsize/2;
+
             }
             else {
                 flightmode = true;
