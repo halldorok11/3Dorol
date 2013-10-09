@@ -117,7 +117,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //populate the walls in the maze
         for (int i = 0; i < (int)cellsperside; i++){
             for (int j = 0; j < (int)cellsperside; j++){
-                cells[i][j] = new Cell(false, true);
+                cells[i][j] = new Cell(Math.random() < 0.5, Math.random() < 0.5);
             }
         }
     }
