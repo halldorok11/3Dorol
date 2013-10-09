@@ -37,14 +37,19 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private boolean countdown = false;
     private long time;
 
+    private int windowheight;
+    private int windowwidth;
+
 
 
     @Override
     public void create() {
+        windowheight = Gdx.graphics.getHeight();
+        windowwidth = Gdx.graphics.getWidth();
         
         cellsperside = 3;
 
-        this.secondCamera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+        this.secondCamera = new OrthographicCamera(windowwidth,windowheight);
         this.spriteBatch = new SpriteBatch();
         this.font = new BitmapFont();
 
@@ -54,8 +59,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glEnable(GL11.GL_LIGHTING);
 
         Gdx.gl11.glEnable(GL11.GL_DEPTH_TEST);
-
-        Gdx.gl11.glClearColor(0.34f, 0.88f, 0.96f, 1.0f);
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
         Gdx.gl11.glLoadIdentity();
@@ -194,6 +197,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private boolean victory(){
+        if (flightmode) return false;
+
         if (cam.eye.x < mapsize-cellsize/2+2f && cam.eye.x > mapsize-cellsize/2-2f){
             if (cam.eye.z < mapsize-cellsize/2+2f && cam.eye.z > mapsize-cellsize/2-2f){
                 return true;
@@ -339,8 +344,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private void display() {
-
-        // Draw some text on the screen
+        Gdx.gl11.glClearColor(0.34f, 0.88f, 0.96f, 1.0f);
         Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
 
         Gdx.gl11.glEnable(GL11.GL_LIGHTING);
@@ -394,7 +398,21 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     public void countdownscreen(){
         long count = (System.currentTimeMillis()-time) / 1000;
-        System.out.println(5-count);
+
+        // Clear the screen.
+        Gdx.gl11.glClearColor(0.7f, 0.3f, 0f, 1);
+        Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
+
+        // Draw the congratulations text on the screen
+        this.spriteBatch.begin();
+        font.setColor(1, 1, 1, 1f);
+        font.draw(this.spriteBatch, String.format("CONGRATULATIONS!"), -80,100);
+        font.draw(this.spriteBatch, String.format("You found the Diamond !"), -90, 50);
+        font.draw(this.spriteBatch, String.format("Next level starting in %d seconds", 5-count), -120, 0);
+        this.spriteBatch.end();
+
+
         if (5-count < 0.1f) {
             countdown = false;
             initialize();
