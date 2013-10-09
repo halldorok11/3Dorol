@@ -208,13 +208,13 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private void rollbackX(){
-        if (cam.eye.x%cellsize < 1.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + 1.5f;
-        if (cam.eye.x%cellsize > 6.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + 6.5f;
+        if (cam.eye.x%cellsize <= 1.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + 1.5f;
+        if (cam.eye.x%cellsize >= cellsize-1.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + cellsize-1.5f;
     }
 
     private void rollbackZ(){
-        if (cam.eye.z%cellsize < 1.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + 1.5f;
-        if (cam.eye.z%cellsize > 6.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + 6.5f;
+        if (cam.eye.z%cellsize <= 1.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + 1.5f;
+        if (cam.eye.z%cellsize >= cellsize-1.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + cellsize-1.5f;
     }
 
     private boolean collisionX(){
@@ -224,17 +224,17 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         int z =(int)(cam.eye.z/cellsize);
 
         if (x == cellsperside-1){
-            if (cam.eye.x%cellsize > 6.5f) return true;
+            if (cam.eye.x%cellsize >= cellsize-1.5f) return true;
         }
         else if (cells[x][z].north){
-            if(cam.eye.x%cellsize > 6.5f) return true;
+            if(cam.eye.x%cellsize >= cellsize-1.5f) return true;
         }
 
         if (x == 0){
-            if (cam.eye.x%cellsize < 1.5) return true;
+            if (cam.eye.x%cellsize <= 1.5f) return true;
         }
         else if (cells[x-1][z].north){
-            if(cam.eye.x%cellsize < 1.5f) return true;
+            if(cam.eye.x%cellsize <= 1.5f) return true;
         }
 
         return false;
@@ -247,17 +247,17 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         int z =(int)(cam.eye.z/cellsize);
 
         if (z == cellsperside-1){
-            if (cam.eye.z%cellsize > 6.5f) return true;
+            if (cam.eye.z%cellsize >= cellsize-1.5f) return true;
         }
         else if (cells[x][z].east){
-            if(cam.eye.z%cellsize > 6.5f) return true;
+            if(cam.eye.z%cellsize >= cellsize-1.5f) return true;
         }
 
         if (z == 0){
-            if (cam.eye.z%cellsize < 1.5) return true;
+            if (cam.eye.z%cellsize <= 1.5f) return true;
         }
         else if (cells[x][z-1].east){
-            if(cam.eye.z%cellsize < 1.5f) return true;
+            if(cam.eye.z%cellsize <= 1.5f) return true;
         }
 
         return false;
@@ -352,7 +352,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
         Gdx.gl11.glLoadIdentity();
-        Gdx.glu.gluPerspective(Gdx.gl11, 90, 1.333333f, 1.0f, 300f);
+        Gdx.glu.gluPerspective(Gdx.gl11, 90, 1f, 1.0f, 300f);
 
         Gdx.gl11.glMatrixMode(GL11.GL_MODELVIEW);
         cam.setModelViewMatrix();
