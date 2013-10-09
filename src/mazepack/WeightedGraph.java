@@ -42,7 +42,7 @@ public class WeightedGraph {
 		// start with connecting horizontal vertices
 		for(int i = 0; i < V - 1; i++)
 		{
-			if((i+1) % n != (n - 1))
+			if((i+1) % n != 0)
 			{
 				addEdge(new Edge(i, i+1, new Random().nextDouble()));
 			}

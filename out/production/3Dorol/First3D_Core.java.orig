@@ -10,9 +10,13 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+<<<<<<< HEAD
 import mazepack.Edge;
 import mazepack.Maze;
 import mazepack.Queue;
+=======
+import sun.security.pkcs11.wrapper.CK_SSL3_KEY_MAT_PARAMS;
+>>>>>>> ef31c968ed46e9e2bb2937b5de70564ca730fe27
 
 
 public class First3D_Core implements ApplicationListener, InputProcessor
@@ -22,7 +26,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private float mapsize; //power of cellsize
     private float wallheight = 4;
     private float cellsize = 8;  //power of two
-    private int cellsperside;
+    private float cellsperside;
     private Cell [][] cells;
 
     // text
@@ -41,6 +45,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     private int windowheight;
     private int windowwidth;
+
 
 	private Maze maze;
 	private Queue<Edge> edgelist;
@@ -111,43 +116,25 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         initialize();
     }
 
+<<<<<<< HEAD
+    private void initializemaze(){
+
+=======
     private void initialize(){
         cam.eye.x = cam.eye.y = cam.eye.z = 2;
         cellsperside = (int)(cellsperside*1.5);
         mapsize = cellsize*cellsperside;
+>>>>>>> ef31c968ed46e9e2bb2937b5de70564ca730fe27
 
-        this.initializeMaze();
+        cells = new Cell[(int)cellsperside][(int)cellsperside];//represent each cell in the maze
+
+        //populate the walls in the maze
+        for (int i = 0; i < (int)cellsperside; i++){
+            for (int j = 0; j < (int)cellsperside; j++){
+                cells[i][j] = new Cell(Math.random() < 0.5, Math.random() < 0.5);
+            }
+        }
     }
-
-	private void initializeMaze()
-	{
-		cells = new Cell[cellsperside][cellsperside];//represent each cell in the maze
-
-		maze = new Maze(cellsperside*cellsperside);
-		edgelist = (Queue<Edge>) maze.getEdges();
-
-		//populate the walls in the maze
-		for (int i = 0; i < cellsperside; i++){
-			for (int j = 0; j < cellsperside; j++){
-				cells[i][j] = new Cell(false, false);
-			}
-		}
-
-		for(Edge e : edgelist)
-		{
-			int a = e.either();
-			int b = e.other(a);
-
-			System.out.println(a + " " + b);
-			boolean north, east;
-			if((b - a) == 1)
-				cells[a/cellsperside][a%cellsperside].east = true;//true ? (b-a == 1) : false;
-
-			if((b - a) > 1)
-				cells[a/cellsperside][a%cellsperside].north = true;//true ? (b-a > 1) : false;
-
-		}
-	}
 
     @Override
     public void dispose() {
@@ -253,14 +240,14 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         if (x == cellsperside-1){
             if (cam.eye.x%cellsize >= cellsize-1.5f) return true;
         }
-        else if (!cells[x][z].north){
+        else if (cells[x][z].north){
             if(cam.eye.x%cellsize >= cellsize-1.5f) return true;
         }
 
         if (x == 0){
             if (cam.eye.x%cellsize <= 1.5f) return true;
         }
-        else if (!cells[x-1][z].north){
+        else if (cells[x-1][z].north){
             if(cam.eye.x%cellsize <= 1.5f) return true;
         }
 
@@ -276,14 +263,14 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         if (z == cellsperside-1){
             if (cam.eye.z%cellsize >= cellsize-1.5f) return true;
         }
-        else if (!cells[x][z].east){
+        else if (cells[x][z].east){
             if(cam.eye.z%cellsize >= cellsize-1.5f) return true;
         }
 
         if (z == 0){
             if (cam.eye.z%cellsize <= 1.5f) return true;
         }
-        else if (!cells[x][z-1].east){
+        else if (cells[x][z-1].east){
             if(cam.eye.z%cellsize <= 1.5f) return true;
         }
 
@@ -331,10 +318,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         for (int i = 0; i < cellsperside; i++){
             for (int j = 0; j < cellsperside; j++){
                 //cell[i][j]
-                if (!cells[i][j].east){
+                if (cells[i][j].east){
                     drawBox(cellsize,height,0.1f,cellwidth*i+cellwidth/2, height/2, cellwidth*j+cellwidth);
                 }
-                if (!cells[i][j].north){
+                if (cells[i][j].north){
                     drawBox(0.1f,height,cellsize,cellwidth*i+cellwidth, height/2, cellwidth*j+cellwidth/2);
                 }
 
