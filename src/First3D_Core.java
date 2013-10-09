@@ -138,8 +138,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 			int a = e.either();
 			int b = e.other(a);
 
-			System.out.println(a + " " + b);
-			boolean north, east;
 			if((b - a) == 1)
 				cells[a/cellsperside][a%cellsperside].east = true;//true ? (b-a == 1) : false;
 
