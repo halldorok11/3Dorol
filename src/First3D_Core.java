@@ -379,7 +379,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
         Gdx.gl11.glLoadIdentity();
-        Gdx.glu.gluPerspective(Gdx.gl11, 90, 1f, 1.0f, 300f);
+        Gdx.glu.gluPerspective(Gdx.gl11, 90, 1f, 1.0f, 3000f);
 
         Gdx.gl11.glMatrixMode(GL11.GL_MODELVIEW);
         cam.setModelViewMatrix();
