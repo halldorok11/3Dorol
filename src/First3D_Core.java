@@ -10,6 +10,9 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import mazepack.Edge;
+import mazepack.Maze;
+import mazepack.Queue;
 
 
 public class First3D_Core implements ApplicationListener, InputProcessor
@@ -28,6 +31,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private OrthographicCamera secondCamera;
 
     private FloatBuffer vertexBuffer;
+
+	private Maze maze;
+	private Queue<Edge> edgelist;
 
 
     @Override
@@ -73,6 +79,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private void initializemaze(){
+
+
         cells = new Cell[(int)cellsperside][(int)cellsperside];//represent each cell in the maze
 
         //populate the walls in the maze
