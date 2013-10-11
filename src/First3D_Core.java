@@ -50,7 +50,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     private Texture floortexture;
     private Texture walltexture;
-
+    private Texture diamondtexture;
 
     @Override
     public void create() {
@@ -125,8 +125,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
 
-        walltexture = new Texture("graphics/grey-brick.png");
+        walltexture = new Texture("graphics/red-brick.jpg");
         floortexture = new Texture("graphics/yellow-brick.png");
+        diamondtexture = new Texture("graphics/diamond2.png");
 
         initialize();
     }
@@ -149,14 +150,12 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		//populate the walls in the maze
 		for (int i = 0; i < cellsperside; i++){
 			for (int j = 0; j < cellsperside; j++){
+                cells[i][j] = new Cell(false, false);
                 if (i == cellsperside-1){
-                    cells[i][j] = new Cell(true,false);
+                    cells[i][j].northpath = true;
                 }
-                else if(j == cellsperside-1){
-                    cells[i][j] = new Cell(false,true);
-                }
-				else {
-                    cells[i][j] = new Cell(false, false);
+                if (j == cellsperside-1){
+                    cells[i][j].eastpath = true;
                 }
 			}
 		}
@@ -323,9 +322,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
         Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 
+        Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT);
+        Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
         tex.bind();
 
-        Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
         Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
 
         Gdx.gl11.glPushMatrix();
@@ -379,6 +379,17 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     private void drawdiamond(){
         Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, this.diamondBuffer);
+
+        Gdx.gl11.glShadeModel(GL11.GL_SMOOTH);;
+
+        Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
+        Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+
+        diamondtexture.bind();
+
+        Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+        Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
+
 
         Gdx.gl11.glPushMatrix();
         Gdx.gl11.glTranslatef(mapsize-cellsize/2 ,2, mapsize-cellsize/2);
