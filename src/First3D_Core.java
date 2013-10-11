@@ -68,6 +68,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glEnable(GL11.GL_LIGHTING);
 
+        Gdx.gl11.glEnable(GL11.GL_LIGHT1);
         Gdx.gl11.glEnable(GL11.GL_DEPTH_TEST);
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
@@ -322,8 +323,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
         Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 
-        Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT);
-        Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
         tex.bind();
 
         Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
@@ -380,7 +379,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private void drawdiamond(){
         Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, this.diamondBuffer);
 
-        Gdx.gl11.glShadeModel(GL11.GL_SMOOTH);;
+        Gdx.gl11.glShadeModel(GL11.GL_SMOOTH);
 
         Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
         Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
@@ -421,33 +420,32 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glClearColor(0f, 0f, 0f, 1.0f);
         Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
 
-        Gdx.gl11.glEnable(GL11.GL_LIGHTING);
-        Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, this.cubeBuffer);
+
+        cam.setModelViewMatrix();
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
         Gdx.gl11.glLoadIdentity();
         Gdx.glu.gluPerspective(Gdx.gl11, 90, 1f, 1.0f, 3000f);
 
         Gdx.gl11.glMatrixMode(GL11.GL_MODELVIEW);
-        cam.setModelViewMatrix();
 
         // Configure light 1
-        float[] lightDiffuse1 = {0.5f, 0.5f, 0.5f, 1.0f};
+        float[] lightDiffuse1 = {0.1f, 0.1f, 0.1f, 1.0f};
         Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightDiffuse1, 0);
 
-        float[] lightPosition1 = {5.0f, 10.0f, 15.0f, 1.0f};
+        float[] lightPosition1 = {mapsize,5, mapsize, 1.0f};
         Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition1, 0);
 
         // Set material on the floor.
-        float[] floorMaterialDiffuse = {1f, .3f, 0.6f, 1.0f};
-        Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_AMBIENT, floorMaterialDiffuse, 0);
+        float[] floorMaterialDiffuse = {0.1f, 0.1f, 0.1f, 1.0f};
+        Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, floorMaterialDiffuse, 0);
 
         // Draw floor!
         drawFloor(mapsize);
 
         //Material for the maze walls
-        float[] boxMaterialDiffuse = {0.3f, 1f, 0.6f, 1.0f};
-        Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_AMBIENT, boxMaterialDiffuse, 0);
+        float[] boxMaterialDiffuse = {0.1f, 0.1f, 0.1f, 1.0f};
+        Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, boxMaterialDiffuse, 0);
 
         //draw the outer walls
         drawmazeframe(mapsize, wallheight);
