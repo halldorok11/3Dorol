@@ -149,7 +149,15 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		//populate the walls in the maze
 		for (int i = 0; i < cellsperside; i++){
 			for (int j = 0; j < cellsperside; j++){
-				cells[i][j] = new Cell(false, false);
+                if (i == cellsperside-1){
+                    cells[i][j] = new Cell(true,false);
+                }
+                else if(j == cellsperside-1){
+                    cells[i][j] = new Cell(false,true);
+                }
+				else {
+                    cells[i][j] = new Cell(false, false);
+                }
 			}
 		}
 
@@ -159,10 +167,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 			int b = e.other(a);
 
 			if((b - a) == 1)
-				cells[a/cellsperside][a%cellsperside].east = true;//true ? (b-a == 1) : false;
+				cells[a/cellsperside][a%cellsperside].eastpath = true;//true ? (b-a == 1) : false;
 
 			if((b - a) > 1)
-				cells[a/cellsperside][a%cellsperside].north = true;//true ? (b-a > 1) : false;
+				cells[a/cellsperside][a%cellsperside].northpath = true;//true ? (b-a > 1) : false;
 
 		}
 	}
@@ -271,14 +279,14 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         if (x == cellsperside-1){
             if (cam.eye.x%cellsize >= cellsize-1.5f) return true;
         }
-        else if (!cells[x][z].north){
+        else if (!cells[x][z].northpath){
             if(cam.eye.x%cellsize >= cellsize-1.5f) return true;
         }
 
         if (x == 0){
             if (cam.eye.x%cellsize <= 1.5f) return true;
         }
-        else if (!cells[x-1][z].north){
+        else if (!cells[x-1][z].northpath){
             if(cam.eye.x%cellsize <= 1.5f) return true;
         }
 
@@ -294,14 +302,14 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         if (z == cellsperside-1){
             if (cam.eye.z%cellsize >= cellsize-1.5f) return true;
         }
-        else if (!cells[x][z].east){
+        else if (!cells[x][z].eastpath){
             if(cam.eye.z%cellsize >= cellsize-1.5f) return true;
         }
 
         if (z == 0){
             if (cam.eye.z%cellsize <= 1.5f) return true;
         }
-        else if (!cells[x][z-1].east){
+        else if (!cells[x][z-1].eastpath){
             if(cam.eye.z%cellsize <= 1.5f) return true;
         }
 
@@ -358,10 +366,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         for (int i = 0; i < cellsperside; i++){
             for (int j = 0; j < cellsperside; j++){
                 //cell[i][j]
-                if (!cells[i][j].east){
+                if (!cells[i][j].eastpath){
                     drawBox(cellsize,height,0.1f,cellwidth*i+cellwidth/2, height/2, cellwidth*j+cellwidth, walltexture);
                 }
-                if (!cells[i][j].north){
+                if (!cells[i][j].northpath){
                     drawBox(0.1f,height,cellsize,cellwidth*i+cellwidth, height/2, cellwidth*j+cellwidth/2, walltexture);
                 }
 

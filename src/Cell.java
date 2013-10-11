@@ -1,9 +1,9 @@
 public class Cell {
-    boolean east;
-    boolean north;
+    boolean eastpath;
+    boolean northpath;
 
-    public Cell(boolean north, boolean east) {
-        this.east = east;
-        this.north = north;
+    public Cell(boolean northpath, boolean eastpath) {
+        this.eastpath = eastpath;
+        this.northpath = northpath;
     }
 }
