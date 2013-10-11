@@ -1,7 +1,9 @@
 import java.nio.FloatBuffer;
 
+import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL11;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
@@ -32,6 +34,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     private FloatBuffer cubeBuffer;
     private FloatBuffer diamondBuffer;
+    private FloatBuffer cubeTexBuffer;
 
     private boolean flightmode = false;
 
@@ -44,6 +47,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
 	private Maze maze;
 	private Queue<Edge> edgelist;
+
+    private Texture floortexture;
+    private Texture walltexture;
 
 
     @Override
@@ -104,9 +110,23 @@ public class First3D_Core implements ApplicationListener, InputProcessor
                 0f,0f,-0.5f,   0.5f,0f,0f,    0f,-1f,0f,     //points daf
         });
         this.diamondBuffer.rewind();
+
+        this.cubeTexBuffer = BufferUtils.newFloatBuffer(48);
+        this.cubeTexBuffer.put(new float[] {
+                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f
+        });
+        this.cubeTexBuffer.rewind();
         
 
         cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
+
+        walltexture = new Texture("graphics/grey-brick.png");
+        floortexture = new Texture("graphics/yellow-brick.png");
 
         initialize();
     }
@@ -149,8 +169,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     @Override
     public void dispose() {
-        // TODO Auto-generated method stub
-
+        floortexture.dispose();
+        walltexture.dispose();
     }
 
     @Override
@@ -288,8 +308,17 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         return false;
     }
 
-    private void drawBox(float length, float height, float width, float x, float y, float z) {
+    private void drawBox(float length, float height, float width, float x, float y, float z, Texture tex) {
+        Gdx.gl11.glShadeModel(GL11.GL_SMOOTH);
         Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, this.cubeBuffer);
+
+        Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
+        Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+
+        tex.bind();
+
+        Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+        Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
 
         Gdx.gl11.glPushMatrix();
         Gdx.gl11.glTranslatef(x, y, z);
@@ -312,17 +341,17 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private void drawFloor(float size) {
-        drawBox(size,0.1f,size,size/2,0,size/2);
+        drawBox(size,0.1f,size,size/2,0,size/2, floortexture);
     }
 
     private void drawmazeframe(float width, float height){
-        drawBox(0.1f, height, width, width, height/2, width/2);
+        drawBox(0.1f, height, width, width, height/2, width/2, walltexture);
 
-        drawBox(0.1f, height, width, 0f, height / 2, width / 2);
+        drawBox(0.1f, height, width, 0f, height / 2, width / 2, walltexture);
 
-        drawBox(width, height, 0.1f, width/2, height/2, width);
+        drawBox(width, height, 0.1f, width/2, height/2, width, walltexture);
 
-        drawBox(width, height, 0.1f, width/2, height/2, 0);
+        drawBox(width, height, 0.1f, width/2, height/2, 0, walltexture);
     }
 
     private void drawcells(float cellwidth, float height){
@@ -330,10 +359,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
             for (int j = 0; j < cellsperside; j++){
                 //cell[i][j]
                 if (!cells[i][j].east){
-                    drawBox(cellsize,height,0.1f,cellwidth*i+cellwidth/2, height/2, cellwidth*j+cellwidth);
+                    drawBox(cellsize,height,0.1f,cellwidth*i+cellwidth/2, height/2, cellwidth*j+cellwidth, walltexture);
                 }
                 if (!cells[i][j].north){
-                    drawBox(0.1f,height,cellsize,cellwidth*i+cellwidth, height/2, cellwidth*j+cellwidth/2);
+                    drawBox(0.1f,height,cellsize,cellwidth*i+cellwidth, height/2, cellwidth*j+cellwidth/2, walltexture);
                 }
 
             }
@@ -369,7 +398,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private void display() {
-        Gdx.gl11.glClearColor(0.34f, 0.88f, 0.96f, 1.0f);
+        //Gdx.gl11.glClearColor(0.34f, 0.88f, 0.96f, 1.0f);
+        Gdx.gl11.glClearColor(0f, 0f, 0f, 1.0f);
         Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
 
         Gdx.gl11.glEnable(GL11.GL_LIGHTING);
@@ -414,11 +444,14 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         this.spriteBatch.setProjectionMatrix(this.secondCamera.combined);
         secondCamera.update();
 
-        this.spriteBatch.begin();
-        font.setColor(1f,1f,1f,1f);
-        font.draw(this.spriteBatch, String.format("Camera position: (%.2f, %.2f, %.2f)",this.cam.eye.x, this.cam.eye.y, this.cam.eye.z), -400, -280);
-        font.draw(this.spriteBatch, String.format("Current cell: (%d, %d)",(int)(cam.eye.x/cellsize), (int)(cam.eye.z/cellsize)), -400, -300);
-        this.spriteBatch.end();
+        if (flightmode){
+            this.spriteBatch.begin();
+            font.setColor(1f,1f,1f,1f);
+            font.draw(this.spriteBatch, String.format("Camera position: (%.2f, %.2f, %.2f)",this.cam.eye.x, this.cam.eye.y, this.cam.eye.z), -400, -280);
+            font.draw(this.spriteBatch, String.format("Current cell: (%d, %d)",(int)(cam.eye.x/cellsize), (int)(cam.eye.z/cellsize)), -400, -300);
+            this.spriteBatch.end();
+        }
+
     }
 
     public void countdownscreen(){
