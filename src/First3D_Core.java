@@ -128,7 +128,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         walltexture = new Texture("graphics/red-brick.jpg");
         floortexture = new Texture("graphics/yellow-brick.png");
-        diamondtexture = new Texture("graphics/diamond2.png");
+        diamondtexture = new Texture("graphics/diamond.png");
 
         initialize();
     }
