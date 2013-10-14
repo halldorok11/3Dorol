@@ -378,6 +378,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
         Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 
+        tex.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
         tex.bind();
 
         Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
