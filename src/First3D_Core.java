@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -269,9 +268,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     /**running into a corner
      *
-      * @return 0 if no collision
-     *  @return 1 if collision and he should rollback in the x direction
-     *  @return 2 if collision and he should rollback in the z direction
+      * @return 0 if no collision, 1 if he should rollback in the x direction and 2 if he should rollback in the z direction
      */
     private int cornercollision(){
         float x = cam.eye.x%cellsize;
