@@ -197,34 +197,22 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
             cam.slide(0.0f, 0.0f, -10.0f * deltaTime);
-            if (collisionX())
-                rollbackX();
-            if (collisionZ())
-                rollbackZ();
+            movementcheck();
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.S)) {
             cam.slide(0.0f, 0.0f, 10.0f * deltaTime);
-            if (collisionX())
-                rollbackX();
-            if (collisionZ())
-                rollbackZ();
+            movementcheck();
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
-            if (collisionX())
-                rollbackX();
-            if (collisionZ())
-                rollbackZ();
+            movementcheck();
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
             cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
-            if (collisionX())
-                rollbackX();
-            if (collisionZ())
-                rollbackZ();
+            movementcheck();
         }
 
         if (flightmode){
@@ -240,6 +228,21 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         if (victory()){
             countdown = true;
             time = System.currentTimeMillis();
+        }
+    }
+
+    private void movementcheck(){
+        if (flightmode) return;
+        if (collisionX())
+            rollbackX();
+        if (collisionZ())
+            rollbackZ();
+        int i = cornercollision();
+        if (i == 1){
+            rollbackX();
+        }
+        if (i == 2){
+            rollbackZ();
         }
     }
 
@@ -264,22 +267,85 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         if (cam.eye.z%cellsize >= cellsize-1.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + cellsize-1.5f;
     }
 
-    private boolean collisionX(){
-        if (flightmode) return false;
+    /**running into a corner
+     *
+      * @return 0 if no collision
+     *  @return 1 if collision and he should rollback in the x direction
+     *  @return 2 if collision and he should rollback in the z direction
+     */
+    private int cornercollision(){
+        float x = cam.eye.x%cellsize;
+        float z = cam.eye.z%cellsize;
+        int current_x_cell = (int)(cam.eye.x/cellsize);
+        int current_z_cell = (int)(cam.eye.z/cellsize);
+        if (x > 1.5f && x < 6.5f){
+            return 0;
+        }
+        if (z > 1.5f && z < 6.5f){
+            return 0;
+        }
 
+        //case 1: going backward in both x and z
+        if (current_x_cell > 0 && current_z_cell > 0){
+            if (x < 1.5f && z < 1.5f){
+                if (!cells[current_x_cell-1][current_z_cell-1].northpath || !cells[current_x_cell-1][current_z_cell-1].eastpath){
+                    if (x > z) return 1;
+                    else return 2;
+                }
+            }
+        }
+
+        //case 2: going backward in x but forward in z
+        if (current_x_cell > 0 && current_z_cell < cellsperside-1){
+            if (x < 1.5f && z > 6.5f){
+                if (!cells[current_x_cell-1][current_z_cell+1].northpath || !cells[current_x_cell-1][current_z_cell].eastpath){
+                    if (x+5 < z) return 1;
+                    else return 2;
+                }
+
+            }
+        }
+
+        //case 3: going forward in x but backward in z
+        if (current_x_cell < cellsperside-1 && current_z_cell > 0){
+            if (x > 6.5f && z < 1.5f){
+                if (!cells[current_x_cell][current_z_cell-1].northpath || !cells[current_x_cell+1][current_z_cell-1].eastpath){
+                    if (x < z+5) return 1;
+                    else return 2;
+                }
+            }
+        }
+        //case 4: going forward in both x and z
+        if (current_x_cell < cellsperside-1 && current_z_cell < cellsperside-1){
+            if (x > 6.5f && z > 6.5f){
+                if (!cells[current_x_cell][current_z_cell+1].northpath || !cells[current_x_cell+1][current_z_cell].eastpath){
+                    if (x < z) return 1;
+                    else return 2;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private boolean collisionX(){
         int x = (int)(cam.eye.x/cellsize);
         int z =(int)(cam.eye.z/cellsize);
 
+        //if we are at the edge
         if (x == cellsperside-1){
             if (cam.eye.x%cellsize >= cellsize-1.5f) return true;
         }
+        //check if there is a path north
         else if (!cells[x][z].northpath){
             if(cam.eye.x%cellsize >= cellsize-1.5f) return true;
         }
 
+        //if we are at the edge
         if (x == 0){
             if (cam.eye.x%cellsize <= 1.5f) return true;
         }
+        //if there is a path to the south
         else if (!cells[x-1][z].northpath){
             if(cam.eye.x%cellsize <= 1.5f) return true;
         }
@@ -288,8 +354,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private boolean collisionZ(){
-        if (flightmode) return false;
-
         int x = (int)(cam.eye.x/cellsize);
         int z =(int)(cam.eye.z/cellsize);
 
@@ -429,14 +493,14 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         /*float[] lightDiffuse1 = {1.0f, 1.0f, 1.0f, 1.0f};
         Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightDiffuse1, 0);
 
-        float[] lightPosition1 = {mapsize,5, mapsize, 1.0f};
+        float[] lightPosition1 = {mapsize,0.5f, mapsize, 1.0f};
         Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPosition1, 0);
 
-	    Gdx.gl11.glEnable(GL11.GL_LIGHT0);      */
+	    Gdx.gl11.glEnable(GL11.GL_LIGHT0); */
 
 	    // Configure light 2
 
-	    float[] lightDiffuse2 = {1.0f, 1.0f, 1.0f, 1.0f};
+	    float[] lightDiffuse2 = {0.4f, 0.4f, 0.4f, 1.0f};
 	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightDiffuse2, 0);
 
 	    float[] lightPosition2 = {cam.eye.x  , cam.eye.y + 2, cam.eye.z , 1.0f};
@@ -449,7 +513,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 	    Gdx.gl11.glEnable(GL11.GL_LIGHT1);
 
         // Set material on the floor.
-        float[] floorMaterialDiffuse = {0.5f, 0.5f, 0.5f, 1.0f};
+        float[] floorMaterialDiffuse = {0.1f, 0.1f, 0.1f, 1.0f};
         Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, floorMaterialDiffuse, 0);
 
         // Draw floor!
@@ -464,6 +528,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         //draw the maze
         drawcells(cellsize, wallheight);
+
+        // Set the material on the diamond
+        float[] diamondMaterialDiffuse = {1f, 1f, 1f, 1.0f};
+        Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, diamondMaterialDiffuse, 0);
 
         //draw the diamond
         drawdiamond();
