@@ -67,8 +67,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.input.setInputProcessor(this);
 
         Gdx.gl11.glEnable(GL11.GL_LIGHTING);
-
-        Gdx.gl11.glEnable(GL11.GL_LIGHT1);
         Gdx.gl11.glEnable(GL11.GL_DEPTH_TEST);
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
@@ -77,38 +75,38 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
 
         this.cubeBuffer = BufferUtils.newFloatBuffer(72);
-        this.cubeBuffer.put(new float[] {-0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
-                0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
+        this.cubeBuffer.put(new float[]{-0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
+		        0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
 
-                0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
-                0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
+		        0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
+		        0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
 
-                0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
-                -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
+		        0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
+		        -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
 
-                -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
-                -0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
+		        -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
+		        -0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
 
-                -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f,
-                0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f,
+		        -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f,
+		        0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f,
 
-                -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,
-                0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f});
+		        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,
+		        0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f});
         this.cubeBuffer.rewind();
 
         this.diamondBuffer = BufferUtils.newFloatBuffer(72);
         //base = point a, b, c and d
         //top point = e
         //bottom point = f
-        this.diamondBuffer.put(new float[] {
-                0.5f,0f,0f,    0f,0f,0.5f,    0f,1f,0f,     //points abe
-                0.5f,0f,0f,    0f,0f,0.5f,    0f,-1f,0f,    //points abf
-                0f,0f,0.5f,    -0.5f,0f,0f,   0f,1f,0f,     //points bce
-                0f,0f,0.5f,    -0.5f,0f,0f,   0f,-1f,0f,     //points bcf
-                -0.5f,0f,0f,   0f,0f,-0.5f,   0f,1f,0f,     //points cde
-                -0.5f,0f,0f,   0f,0f,-0.5f,   0f,-1f,0f,     //points cdf
-                0f,0f,-0.5f,   0.5f,0f,0f,    0f,1f,0f,     //points dae
-                0f,0f,-0.5f,   0.5f,0f,0f,    0f,-1f,0f,     //points daf
+        this.diamondBuffer.put(new float[]{
+		        0.5f, 0f, 0f, 0f, 0f, 0.5f, 0f, 1f, 0f,     //points abe
+		        0.5f, 0f, 0f, 0f, 0f, 0.5f, 0f, -1f, 0f,    //points abf
+		        0f, 0f, 0.5f, -0.5f, 0f, 0f, 0f, 1f, 0f,     //points bce
+		        0f, 0f, 0.5f, -0.5f, 0f, 0f, 0f, -1f, 0f,     //points bcf
+		        -0.5f, 0f, 0f, 0f, 0f, -0.5f, 0f, 1f, 0f,     //points cde
+		        -0.5f, 0f, 0f, 0f, 0f, -0.5f, 0f, -1f, 0f,     //points cdf
+		        0f, 0f, -0.5f, 0.5f, 0f, 0f, 0f, 1f, 0f,     //points dae
+		        0f, 0f, -0.5f, 0.5f, 0f, 0f, 0f, -1f, 0f,     //points daf
         });
         this.diamondBuffer.rewind();
 
@@ -188,10 +186,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private void update() {
-        if(this.ligthBulbState)
-            Gdx.gl11.glEnable(GL11.GL_LIGHT0);
-        else
-            Gdx.gl11.glDisable(GL11.GL_LIGHT0);
 
         float deltaTime = Gdx.graphics.getDeltaTime();
 
@@ -418,26 +412,44 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private void display() {
         //Gdx.gl11.glClearColor(0.34f, 0.88f, 0.96f, 1.0f);
         Gdx.gl11.glClearColor(0f, 0f, 0f, 1.0f);
-        Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 
         cam.setModelViewMatrix();
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
         Gdx.gl11.glLoadIdentity();
-        Gdx.glu.gluPerspective(Gdx.gl11, 90, 1f, 1.0f, 3000f);
+        Gdx.glu.gluPerspective(Gdx.gl11, 90, 1.0f, 1.0f, 300f);
 
         Gdx.gl11.glMatrixMode(GL11.GL_MODELVIEW);
 
+
+
         // Configure light 1
-        float[] lightDiffuse1 = {0.1f, 0.1f, 0.1f, 1.0f};
-        Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightDiffuse1, 0);
+        /*float[] lightDiffuse1 = {1.0f, 1.0f, 1.0f, 1.0f};
+        Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightDiffuse1, 0);
 
         float[] lightPosition1 = {mapsize,5, mapsize, 1.0f};
-        Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition1, 0);
+        Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPosition1, 0);
+
+	    Gdx.gl11.glEnable(GL11.GL_LIGHT0);      */
+
+	    // Configure light 2
+
+	    float[] lightDiffuse2 = {1.0f, 1.0f, 1.0f, 1.0f};
+	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightDiffuse2, 0);
+
+	    float[] lightPosition2 = {cam.eye.x  , cam.eye.y + 2, cam.eye.z , 1.0f};
+
+	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition2, 0);
+		/*Gdx.gl11.glLightf(GL10.GL_LIGHT1, GL11.GL_SPOT_CUTOFF, 60.0f);
+
+	    float[] spot_direction = { cam.eye.x , cam.eye.y , cam.eye.z};
+	    Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_SPOT_DIRECTION, ); */
+	    Gdx.gl11.glEnable(GL11.GL_LIGHT1);
 
         // Set material on the floor.
-        float[] floorMaterialDiffuse = {0.1f, 0.1f, 0.1f, 1.0f};
+        float[] floorMaterialDiffuse = {0.5f, 0.5f, 0.5f, 1.0f};
         Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, floorMaterialDiffuse, 0);
 
         // Draw floor!
@@ -456,7 +468,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //draw the diamond
         drawdiamond();
 
-        Gdx.gl11.glDisable(GL11.GL_LIGHTING);
+        //Gdx.gl11.glDisable(GL11.GL_LIGHTING); WHY WAS THIS HERE?
 
         this.spriteBatch.setProjectionMatrix(this.secondCamera.combined);
         secondCamera.update();
