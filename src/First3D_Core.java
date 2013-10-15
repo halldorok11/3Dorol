@@ -78,6 +78,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //Lights
         Gdx.gl11.glEnable(GL11.GL_LIGHTING);
         Gdx.gl11.glEnable(GL11.GL_DEPTH_TEST);
+        //Gdx.gl11.glEnable(GL11.GL_LIGHT0);
+        Gdx.gl11.glEnable(GL11.GL_LIGHT1);
 
 
         Gdx.gl11.glEnable(GL11.GL_FOG);
@@ -593,15 +595,21 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glMatrixMode(GL11.GL_MODELVIEW);
 
+        // Configure light 0
+
+        float[] lightDiffuse0 = {1f, 1f, 1f, 1.0f};
+        Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_AMBIENT, lightDiffuse0, 0);
+
+        float[] lightPosition0 = {cam.eye.x , cam.eye.y, cam.eye.z, 1.0f};
+        Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPosition0, 0);
+
         // Configure light 1
 
-        Gdx.gl11.glEnable(GL11.GL_LIGHT1);
+	    float[] lightDiffuse1 = {0.1f, 0.1f, 0.1f, 1.0f};
+	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_SPECULAR, lightDiffuse1, 0);
 
-	    float[] lightDiffuse2 = {0.1f, 0.1f, 0.1f, 1.0f};
-	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_SPECULAR, lightDiffuse2, 0);
-
-	    float[] lightPosition2 = {cam.eye.x  , cam.eye.y + 2f, cam.eye.z , 1.0f};
-	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition2, 0);
+	    float[] lightPosition1 = {cam.eye.x  , cam.eye.y + 2f, cam.eye.z , 1.0f};
+	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition1, 0);
 
         // Set material on the cubes.
         float[] cubeMaterialDiffuse = {0.2f, 0.2f, 0.2f, 1.0f};
@@ -717,9 +725,16 @@ public class First3D_Core implements ApplicationListener, InputProcessor
                 cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + cellsize/2;
                 cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + cellsize/2;
 
+                Gdx.gl11.glEnable(GL11.GL_FOG);
+                Gdx.gl11.glDisable(GL11.GL_LIGHT0);
+                Gdx.gl11.glEnable(GL11.GL_LIGHT1);
             }
             else {
                 flightmode = true;
+
+                Gdx.gl11.glDisable(GL11.GL_FOG);
+                Gdx.gl11.glDisable(GL11.GL_LIGHT1);
+                Gdx.gl11.glEnable(GL11.GL_LIGHT0);
             }
         }
         return false;
