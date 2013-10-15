@@ -527,6 +527,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glScalef(2f, 2f, 2f);
         Gdx.gl11.glRotatef(angle,0,1,0);
 
+        //TODO: Fix the normals!
         Gdx.gl11.glNormal3f(0.5f, 0.25f, 0.5f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
         Gdx.gl11.glNormal3f(0.5f, -0.25f, 0.5f);
@@ -551,6 +552,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private void display() {
+        //TODO: Add fog!
+
         Gdx.gl11.glClearColor(0f, 0f, 0f, 1.0f);
         Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
