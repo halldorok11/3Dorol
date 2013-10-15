@@ -1,5 +1,9 @@
-import java.nio.FloatBuffer;
+/**
+ * @author Halldór Örn Kristjásson
+ * @author Ólafur Daði Jónsson
+ */
 
+import java.nio.FloatBuffer;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL11;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -15,11 +19,16 @@ import mazepack.Edge;
 import mazepack.Maze;
 import mazepack.Queue;
 
-
+/**
+ * This is the "main" class that "plays" and runs the game.
+ * @version 1.0
+ */
 public class First3D_Core implements ApplicationListener, InputProcessor
 {
+    //The eye of the player
     Camera cam;
-    private boolean ligthBulbState = true;
+
+    //Variables regarding to the size of the map/maze
     private float mapsize; //power of cellsize
     private float wallheight = 4;
     private float cellsize = 8;  //power of two
@@ -31,40 +40,44 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private BitmapFont font;
     private OrthographicCamera secondCamera;
 
+    //3D objects
     private FloatBuffer cubeBuffer;
     private FloatBuffer diamondBuffer;
     private FloatBuffer cubeTexBuffer;
 
+    //cheatmode
     private boolean flightmode = false;
 
+    //diamond rotation
     private int angle = 0;
+
+    //countdown between levels
     private boolean countdown = false;
     private long time;
 
-    private int windowheight;
-    private int windowwidth;
-
-	private Maze maze;
-	private Queue<Edge> edgelist;
-
+    //Different textures for different 3D objects
     private Texture floortexture;
     private Texture walltexture;
     private Texture diamondtexture;
 
     @Override
+    /**
+     * This function is run when the application starts
+     * It does some initializing and first time settings
+     */
     public void create() {
-        windowheight = Gdx.graphics.getHeight();
-        windowwidth = Gdx.graphics.getWidth();
-        
+        //initial size of the map - will be multiplied by 1.5 before the game starts.
         cellsperside = 3;
 
-        this.secondCamera = new OrthographicCamera(windowwidth,windowheight);
+        //second camera used to print text on the screen
+        this.secondCamera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
         this.spriteBatch = new SpriteBatch();
         this.font = new BitmapFont();
 
-
+        //handles keyboard input
         Gdx.input.setInputProcessor(this);
 
+        //Lights
         Gdx.gl11.glEnable(GL11.GL_LIGHTING);
         Gdx.gl11.glEnable(GL11.GL_DEPTH_TEST);
 
@@ -73,6 +86,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
 
+        //3D cube
         this.cubeBuffer = BufferUtils.newFloatBuffer(72);
         this.cubeBuffer.put(new float[]{-0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
 		        0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
@@ -93,6 +107,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 		        0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f});
         this.cubeBuffer.rewind();
 
+        //3D diamond
         this.diamondBuffer = BufferUtils.newFloatBuffer(72);
         //base = point a, b, c and d
         //top point = e
@@ -109,6 +124,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         });
         this.diamondBuffer.rewind();
 
+        //Texture buffer
         this.cubeTexBuffer = BufferUtils.newFloatBuffer(48);
         this.cubeTexBuffer.put(new float[] {
                 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
@@ -120,32 +136,47 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         });
         this.cubeTexBuffer.rewind();
         
-
+        //camera
         cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
 
+        //assign images to the textures
         walltexture = new Texture("graphics/red-brick.jpg");
         floortexture = new Texture("graphics/yellow-brick.png");
         diamondtexture = new Texture("graphics/diamond.png");
 
+        //get shit done!
         initialize();
     }
 
+    /**
+     * Does some basic initializing
+     */
     private void initialize(){
+        //set the initial position of the eye
         cam.eye.x = cam.eye.y = cam.eye.z = 2;
+
+        //let the maze grow by a factor of 1.5 on each side
         cellsperside = (int)(cellsperside*1.5);
+
+        //calculate and store the mapsize
         mapsize = cellsize*cellsperside;
 
         this.initializeMaze();
     }
 
+    /**
+     * Generates and initializes a new maze
+     */
 	private void initializeMaze()
 	{
-		cells = new Cell[cellsperside][cellsperside];//represent each cell in the maze
+        //represents each cell in the maze
+		cells = new Cell[cellsperside][cellsperside];
 
-		maze = new Maze(cellsperside*cellsperside);
-		edgelist = (Queue<Edge>) maze.getEdges();
+        //generate a new maze
+        Maze maze = new Maze(cellsperside * cellsperside);
+        Queue<Edge> edgelist = (Queue<Edge>) maze.getEdges();
 
-		//populate the walls in the maze
+		//populate all the cells with no walls
 		for (int i = 0; i < cellsperside; i++){
 			for (int j = 0; j < cellsperside; j++){
                 cells[i][j] = new Cell(false, false);
@@ -158,6 +189,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 			}
 		}
 
+        //put up walls where they should be
 		for(Edge e : edgelist)
 		{
 			int a = e.either();
@@ -173,6 +205,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 	}
 
     @Override
+    /**
+     * called when the application is closed
+     */
     public void dispose() {
         floortexture.dispose();
         walltexture.dispose();
@@ -184,59 +219,85 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     }
 
+    /**
+     * Updates all positions in the maze
+     */
     private void update() {
 
+        //gets the difference in time since the last update
         float deltaTime = Gdx.graphics.getDeltaTime();
 
+        //the following functions all update the camera position depending on the key
+
+        //turn to the left
         if(Gdx.input.isKeyPressed(Input.Keys.A))
             cam.yaw(-120.0f * deltaTime);
 
+        //turn to the right
         if(Gdx.input.isKeyPressed(Input.Keys.D))
             cam.yaw(120.0f * deltaTime);
 
+        //slide forward
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
             cam.slide(0.0f, 0.0f, -10.0f * deltaTime);
             movementcheck();
         }
 
+        //slide backward
         if(Gdx.input.isKeyPressed(Input.Keys.S)) {
             cam.slide(0.0f, 0.0f, 10.0f * deltaTime);
             movementcheck();
         }
 
+        //slide to the left
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
             movementcheck();
         }
 
+        //slide to the right
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
             cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
             movementcheck();
         }
 
+        //cheatmode
         if (flightmode){
+            //slide up
             if(Gdx.input.isKeyPressed(Input.Keys.R))
                 cam.slide(0.0f, 10.0f * deltaTime, 0.0f);
 
-                if(Gdx.input.isKeyPressed(Input.Keys.F))
+            //slide down
+            if(Gdx.input.isKeyPressed(Input.Keys.F))
                 cam.slide(0.0f, -10.0f * deltaTime, 0.0f);
         }
 
+        //increase the angle on the diamond (effectively rotating it)
         angle++;
 
+        //check for victory :)
         if (victory()){
             countdown = true;
             time = System.currentTimeMillis();
         }
     }
 
+    /**
+     * Checks if the move just made has put in an invalid position.
+     * And if it has, then returns the camera to the nearest allowed position.
+     */
     private void movementcheck(){
+        //in flightmode you should be able to go anywhere
         if (flightmode) return;
+
         if (collisionX())
             rollbackX();
+
         if (collisionZ())
             rollbackZ();
+
         int i = cornercollision();
+
         if (i == 1){
             rollbackX();
         }
@@ -245,6 +306,11 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         }
     }
 
+    /**
+     * Checks if the camera is in a victory position
+     * i.e. the camera is in the nearest vicinity of the diamond
+     * @return true if you have reached victory and false if not.
+     */
     private boolean victory(){
         if (flightmode) return false;
 
@@ -256,19 +322,26 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         return false;
     }
 
+    /**
+     * Moves the camera to the nearest allowed x coordinate
+     */
     private void rollbackX(){
         if (cam.eye.x%cellsize <= 1.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + 1.5f;
         if (cam.eye.x%cellsize >= cellsize-1.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + cellsize-1.5f;
     }
 
+    /**
+     * Moves the camera to the nearest allowed z coordinate
+     */
     private void rollbackZ(){
         if (cam.eye.z%cellsize <= 1.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + 1.5f;
         if (cam.eye.z%cellsize >= cellsize-1.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + cellsize-1.5f;
     }
 
-    /**running into a corner
+    /**
+     * This function checks if you are running into the corners of outstanding walls and corners
      *
-      * @return 0 if no collision, 1 if he should rollback in the x direction and 2 if he should rollback in the z direction
+     * @return 0 if no collision, 1 if he should rollback in the x direction and 2 if he should rollback in the z direction
      */
     private int cornercollision(){
         float x = cam.eye.x%cellsize;
@@ -378,7 +451,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
         Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 
-        tex.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
+        //tex.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
+        //Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
         tex.bind();
 
         Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
@@ -442,7 +516,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         diamondtexture.bind();
 
-        Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+        //Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
         Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
 
 
@@ -534,8 +608,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //draw the diamond
         drawdiamond();
 
-        //Gdx.gl11.glDisable(GL11.GL_LIGHTING); WHY WAS THIS HERE?
 
+        Gdx.gl11.glDisable(GL11.GL_LIGHTING);
         this.spriteBatch.setProjectionMatrix(this.secondCamera.combined);
         secondCamera.update();
 
@@ -546,6 +620,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
             font.draw(this.spriteBatch, String.format("Current cell: (%d, %d)",(int)(cam.eye.x/cellsize), (int)(cam.eye.z/cellsize)), -400, -300);
             this.spriteBatch.end();
         }
+        Gdx.gl11.glEnable(GL11.GL_LIGHTING);
 
     }
 
@@ -556,15 +631,17 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glClearColor(0.7f, 0.3f, 0f, 1);
         Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
+        Gdx.gl11.glDisable(GL11.GL_LIGHTING);
 
         // Draw the congratulations text on the screen
         this.spriteBatch.begin();
-        font.setColor(1, 1, 1, 1f);
+        font.setColor(1f, 1f, 1f, 1f);
         font.draw(this.spriteBatch, String.format("CONGRATULATIONS!"), -80,100);
         font.draw(this.spriteBatch, String.format("You found the Diamond !"), -90, 50);
         font.draw(this.spriteBatch, String.format("Next level starting in %d seconds", 5-count), -120, 0);
         this.spriteBatch.end();
 
+        Gdx.gl11.glEnable(GL11.GL_LIGHTING);
 
         if (5-count < 0.1f) {
             countdown = false;
