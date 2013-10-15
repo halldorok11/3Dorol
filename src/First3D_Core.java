@@ -140,7 +140,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
 
         //assign images to the textures
-        walltexture = new Texture("graphics/red-brick.jpg");
+        walltexture = new Texture("graphics/red-brick.png");
         floortexture = new Texture("graphics/yellow-brick.png");
         diamondtexture = new Texture("graphics/diamond.png");
 
@@ -451,8 +451,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
         Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 
-        //tex.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
-        //Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
         tex.bind();
 
         Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
@@ -477,29 +475,31 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glPopMatrix();
     }
 
-    private void drawFloor(float size) {
-        drawBox(size,0.1f,size,size/2,0,size/2, floortexture);
+    private void drawFloor() {
+        for (int i = 0 ; i < cellsperside ; i++){
+            for (int j = 0 ; j < cellsperside; j++)
+            drawBox(cellsize,0.1f,cellsize,i*cellsize + cellsize/2,0,j*cellsize + cellsize/2, floortexture);
+        }
     }
 
-    private void drawmazeframe(float width, float height){
-        drawBox(0.1f, height, width, width, height/2, width/2, walltexture);
-
-        drawBox(0.1f, height, width, 0f, height / 2, width / 2, walltexture);
-
-        drawBox(width, height, 0.1f, width/2, height/2, width, walltexture);
-
-        drawBox(width, height, 0.1f, width/2, height/2, 0, walltexture);
+    private void drawmazeframe(){
+        for (int i = 0; i < cellsperside ; i++){
+            drawBox(0.1f, wallheight, cellsize, mapsize, wallheight/2, cellsize/2 + i*cellsize, walltexture);
+            drawBox(0.1f, wallheight, cellsize, 0f, wallheight / 2, cellsize/2 + i*cellsize, walltexture);
+            drawBox(cellsize, wallheight, 0.1f, cellsize/2 + i*cellsize, wallheight/2, mapsize, walltexture);
+            drawBox(cellsize, wallheight, 0.1f, cellsize/2 + i*cellsize, wallheight/2, 0, walltexture);
+        }
     }
 
-    private void drawcells(float cellwidth, float height){
+    private void drawcells(){
         for (int i = 0; i < cellsperside; i++){
             for (int j = 0; j < cellsperside; j++){
                 //cell[i][j]
                 if (!cells[i][j].eastpath){
-                    drawBox(cellsize,height,0.1f,cellwidth*i+cellwidth/2, height/2, cellwidth*j+cellwidth, walltexture);
+                    drawBox(cellsize,wallheight,0.1f,cellsize*i+cellsize/2, wallheight/2, cellsize*j+cellsize, walltexture);
                 }
                 if (!cells[i][j].northpath){
-                    drawBox(0.1f,height,cellsize,cellwidth*i+cellwidth, height/2, cellwidth*j+cellwidth/2, walltexture);
+                    drawBox(0.1f,wallheight,cellsize,cellsize*i+cellsize, wallheight/2, cellsize*j+cellsize/2, walltexture);
                 }
 
             }
@@ -516,7 +516,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         diamondtexture.bind();
 
-        //Gdx.gl11.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
         Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
 
 
@@ -589,17 +588,17 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, floorMaterialDiffuse, 0);
 
         // Draw floor!
-        drawFloor(mapsize);
+        drawFloor();
 
         //Material for the maze walls
         float[] boxMaterialDiffuse = {0.1f, 0.1f, 0.1f, 1.0f};
         Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, boxMaterialDiffuse, 0);
 
         //draw the outer walls
-        drawmazeframe(mapsize, wallheight);
+        drawmazeframe();
 
         //draw the maze
-        drawcells(cellsize, wallheight);
+        drawcells();
 
         // Set the material on the diamond
         float[] diamondMaterialDiffuse = {1f, 1f, 1f, 1.0f};
