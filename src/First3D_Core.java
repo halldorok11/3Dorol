@@ -223,6 +223,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
      * Updates all positions in the maze
      */
     private void update() {
+        int hyperspeed;
+        if (flightmode) hyperspeed = 4;
+        else hyperspeed = 1;
 
         //gets the difference in time since the last update
         float deltaTime = Gdx.graphics.getDeltaTime();
@@ -239,37 +242,34 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         //slide forward
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            cam.slide(0.0f, 0.0f, -10.0f * deltaTime);
-            movementcheck();
+            cam.slide(0.0f, 0.0f, -10.0f * deltaTime * hyperspeed);
         }
 
         //slide backward
         if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            cam.slide(0.0f, 0.0f, 10.0f * deltaTime);
-            movementcheck();
+            cam.slide(0.0f, 0.0f, 10.0f * deltaTime * hyperspeed);
         }
 
         //slide to the left
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            cam.slide(-10.0f * deltaTime, 0.0f, 0.0f);
-            movementcheck();
+            cam.slide(-10.0f * deltaTime * hyperspeed, 0.0f, 0.0f);
         }
 
         //slide to the right
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            cam.slide(10.0f * deltaTime, 0.0f, 0.0f);
-            movementcheck();
+            cam.slide(10.0f * deltaTime * hyperspeed, 0.0f, 0.0f);
         }
+        movementcheck();
 
         //cheatmode
         if (flightmode){
             //slide up
             if(Gdx.input.isKeyPressed(Input.Keys.R))
-                cam.slide(0.0f, 10.0f * deltaTime, 0.0f);
+                cam.slide(0.0f, 10.0f * deltaTime * hyperspeed, 0.0f);
 
             //slide down
             if(Gdx.input.isKeyPressed(Input.Keys.F))
-                cam.slide(0.0f, -10.0f * deltaTime, 0.0f);
+                cam.slide(0.0f, -10.0f * deltaTime * hyperspeed, 0.0f);
         }
 
         //increase the angle on the diamond (effectively rotating it)
@@ -473,6 +473,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 20, 4);
 
         Gdx.gl11.glPopMatrix();
+
+        Gdx.gl11.glDisable(GL11.GL_TEXTURE_2D);
+        Gdx.gl11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
     }
 
     private void drawFloor() {
@@ -542,10 +545,12 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 21, 3);
 
         Gdx.gl11.glPopMatrix();
+
+        Gdx.gl11.glDisable(GL11.GL_TEXTURE_2D);
+        Gdx.gl11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
     }
 
     private void display() {
-        //Gdx.gl11.glClearColor(0.34f, 0.88f, 0.96f, 1.0f);
         Gdx.gl11.glClearColor(0f, 0f, 0f, 1.0f);
         Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
@@ -558,41 +563,24 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glMatrixMode(GL11.GL_MODELVIEW);
 
+        Gdx.gl11.glEnable(GL11.GL_LIGHT1);
 
+	    // Configure light 1
 
-        // Configure light 1
-        /*float[] lightDiffuse1 = {1.0f, 1.0f, 1.0f, 1.0f};
-        Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightDiffuse1, 0);
+	    float[] lightDiffuse2 = {0.1f, 0.1f, 0.1f, 1.0f};
+	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_SPECULAR, lightDiffuse2, 0);
 
-        float[] lightPosition1 = {mapsize,0.5f, mapsize, 1.0f};
-        Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPosition1, 0);
-
-	    Gdx.gl11.glEnable(GL11.GL_LIGHT0); */
-
-	    // Configure light 2
-
-	    float[] lightDiffuse2 = {0.4f, 0.4f, 0.4f, 1.0f};
-	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightDiffuse2, 0);
-
-	    float[] lightPosition2 = {cam.eye.x  , cam.eye.y + 2, cam.eye.z , 1.0f};
+	    float[] lightPosition2 = {cam.eye.x  , cam.eye.y + 2f, cam.eye.z , 1.0f};
 
 	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition2, 0);
-		/*Gdx.gl11.glLightf(GL10.GL_LIGHT1, GL11.GL_SPOT_CUTOFF, 60.0f);
 
-	    float[] spot_direction = { cam.eye.x , cam.eye.y , cam.eye.z};
-	    Gdx.gl11.glLightfv(GL11.GL_LIGHT0, GL11.GL_SPOT_DIRECTION, ); */
-	    Gdx.gl11.glEnable(GL11.GL_LIGHT1);
-
-        // Set material on the floor.
-        float[] floorMaterialDiffuse = {0.1f, 0.1f, 0.1f, 1.0f};
-        Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, floorMaterialDiffuse, 0);
+        // Set material on the cubes.
+        float[] cubeMaterialDiffuse = {0.1f, 0.1f, 0.1f, 1.0f};
+        Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_SPECULAR, cubeMaterialDiffuse, 0);
+        Gdx.gl11.glMaterialf(GL11.GL_FRONT_AND_BACK, GL11.GL_SHININESS, 2);
 
         // Draw floor!
         drawFloor();
-
-        //Material for the maze walls
-        float[] boxMaterialDiffuse = {0.1f, 0.1f, 0.1f, 1.0f};
-        Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, boxMaterialDiffuse, 0);
 
         //draw the outer walls
         drawmazeframe();
@@ -602,25 +590,23 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         // Set the material on the diamond
         float[] diamondMaterialDiffuse = {1f, 1f, 1f, 1.0f};
-        Gdx.gl11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, diamondMaterialDiffuse, 0);
+        Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_SPECULAR, diamondMaterialDiffuse, 0);
+        Gdx.gl11.glMaterialf(GL11.GL_FRONT_AND_BACK, GL11.GL_SHININESS, 14);
 
         //draw the diamond
         drawdiamond();
 
-
-        Gdx.gl11.glDisable(GL11.GL_LIGHTING);
-        this.spriteBatch.setProjectionMatrix(this.secondCamera.combined);
-        secondCamera.update();
-
         if (flightmode){
+            Gdx.gl11.glDisable(GL11.GL_LIGHTING);
+            this.spriteBatch.setProjectionMatrix(this.secondCamera.combined);
+            secondCamera.update();
             this.spriteBatch.begin();
             font.setColor(1f,1f,1f,1f);
             font.draw(this.spriteBatch, String.format("Camera position: (%.2f, %.2f, %.2f)",this.cam.eye.x, this.cam.eye.y, this.cam.eye.z), -400, -280);
             font.draw(this.spriteBatch, String.format("Current cell: (%d, %d)",(int)(cam.eye.x/cellsize), (int)(cam.eye.z/cellsize)), -400, -300);
             this.spriteBatch.end();
+            Gdx.gl11.glEnable(GL11.GL_LIGHTING);
         }
-        Gdx.gl11.glEnable(GL11.GL_LIGHTING);
-
     }
 
     public void countdownscreen(){
