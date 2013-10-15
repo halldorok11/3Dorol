@@ -25,6 +25,7 @@ import mazepack.Queue;
  */
 public class First3D_Core implements ApplicationListener, InputProcessor
 {
+    //TODO: REFACTOR!
     //The eye of the player
     Camera cam;
 
@@ -139,6 +140,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //camera
         cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
 
+        //TODO: change textures ?
         //assign images to the textures
         walltexture = new Texture("graphics/red-brick.png");
         floortexture = new Texture("graphics/yellow-brick.png");
@@ -552,8 +554,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     private void display() {
-        //TODO: Add fog!
-
         Gdx.gl11.glClearColor(0f, 0f, 0f, 1.0f);
         Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
@@ -568,7 +568,11 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glEnable(GL11.GL_LIGHT1);
 
-	    // Configure light 1
+        Gdx.gl11.glEnable(GL11.GL_FOG);
+        Gdx.gl11.glFogf (GL11.GL_FOG_DENSITY, 0.15f);
+
+
+        // Configure light 1
 
 	    float[] lightDiffuse2 = {0.1f, 0.1f, 0.1f, 1.0f};
 	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_SPECULAR, lightDiffuse2, 0);
