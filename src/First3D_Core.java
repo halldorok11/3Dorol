@@ -78,7 +78,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //Lights
         Gdx.gl11.glEnable(GL11.GL_LIGHTING);
         Gdx.gl11.glEnable(GL11.GL_DEPTH_TEST);
-        //Gdx.gl11.glEnable(GL11.GL_LIGHT0);
         Gdx.gl11.glEnable(GL11.GL_LIGHT1);
 
 
