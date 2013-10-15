@@ -1,8 +1,3 @@
-/**
- * @author Halldór Örn Kristjásson
- * @author Ólafur Daði Jónsson
- */
-
 import java.nio.FloatBuffer;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL11;
@@ -22,6 +17,8 @@ import mazepack.Queue;
 /**
  * This is the "main" class that "plays" and runs the game.
  * @version 1.0
+ * @author Halldór Örn Kristjánsson
+ * @author Ólafur Daði Jónsson
  */
 public class First3D_Core implements ApplicationListener, InputProcessor
 {
@@ -81,6 +78,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //Lights
         Gdx.gl11.glEnable(GL11.GL_LIGHTING);
         Gdx.gl11.glEnable(GL11.GL_DEPTH_TEST);
+
+
+        Gdx.gl11.glEnable(GL11.GL_FOG);
+        Gdx.gl11.glFogf (GL11.GL_FOG_DENSITY, 0.15f);
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
         Gdx.gl11.glLoadIdentity();
@@ -217,7 +218,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
     @Override
     public void pause() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -348,8 +348,11 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private int cornercollision(){
         float x = cam.eye.x%cellsize;
         float z = cam.eye.z%cellsize;
+
         int current_x_cell = (int)(cam.eye.x/cellsize);
         int current_z_cell = (int)(cam.eye.z/cellsize);
+
+        //if the eye is not near any wall
         if (x > 1.5f && x < 6.5f){
             return 0;
         }
@@ -400,6 +403,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         return 0;
     }
 
+    /**
+     * Checks for collision on the x axis
+     * @return true if a collision has happened, false if not
+     */
     private boolean collisionX(){
         int x = (int)(cam.eye.x/cellsize);
         int z =(int)(cam.eye.z/cellsize);
@@ -425,20 +432,28 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         return false;
     }
 
+    /**
+     * Checks for collision on the z axis
+     * @return true if a collision has happened, false if not
+     */
     private boolean collisionZ(){
         int x = (int)(cam.eye.x/cellsize);
         int z =(int)(cam.eye.z/cellsize);
 
+        //If we are at the edge
         if (z == cellsperside-1){
             if (cam.eye.z%cellsize >= cellsize-1.5f) return true;
         }
+        //check if there is a path to the east
         else if (!cells[x][z].eastpath){
             if(cam.eye.z%cellsize >= cellsize-1.5f) return true;
         }
 
+        //if we are the other edge
         if (z == 0){
             if (cam.eye.z%cellsize <= 1.5f) return true;
         }
+        //check if there is a path to the east
         else if (!cells[x][z-1].eastpath){
             if(cam.eye.z%cellsize <= 1.5f) return true;
         }
@@ -480,6 +495,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
     }
 
+    /**
+     * Draws the floor of the maze, creating one tile of floor under each cell
+     */
     private void drawFloor() {
         for (int i = 0 ; i < cellsperside ; i++){
             for (int j = 0 ; j < cellsperside; j++)
@@ -487,6 +505,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         }
     }
 
+    /**
+     * Draws the frame around the maze floor.
+     */
     private void drawmazeframe(){
         for (int i = 0; i < cellsperside ; i++){
             drawBox(0.1f, wallheight, cellsize, mapsize, wallheight/2, cellsize/2 + i*cellsize, walltexture);
@@ -496,6 +517,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         }
     }
 
+    /**
+     * Draws all the cell walls in the maze.
+     */
     private void drawcells(){
         for (int i = 0; i < cellsperside; i++){
             for (int j = 0; j < cellsperside; j++){
@@ -532,17 +556,17 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //TODO: Fix the normals!
         Gdx.gl11.glNormal3f(0.5f, 0.25f, 0.5f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
-        Gdx.gl11.glNormal3f(0.5f, -0.25f, 0.5f);
+        Gdx.gl11.glNormal3f(-0.5f, 0.25f, -0.5f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 3, 3);
-        Gdx.gl11.glNormal3f(-0.5f, 0.25f, 0.5f);
+        Gdx.gl11.glNormal3f(0.5f, -0.25f, -0.5f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 6, 3);
         Gdx.gl11.glNormal3f(-0.5f, -0.25f, 0.5f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 9, 3);
         Gdx.gl11.glNormal3f(-0.5f, 0.25f, -0.5f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 12, 3);
-        Gdx.gl11.glNormal3f(-0.5f, -0.25f, -0.5f);
+        Gdx.gl11.glNormal3f(0.5f, 0.25f, 0.5f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 15, 3);
-        Gdx.gl11.glNormal3f(0.5f, 0.25f, -0.5f);
+        Gdx.gl11.glNormal3f(-0.5f, -0.25f, 0.5f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 18, 3);
         Gdx.gl11.glNormal3f(0.5f, -0.25f, -0.5f);
         Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 21, 3);
@@ -553,6 +577,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         Gdx.gl11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
     }
 
+    /**
+     * This function does all the lighting and drawing of the program.
+     */
     private void display() {
         Gdx.gl11.glClearColor(0f, 0f, 0f, 1.0f);
         Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -566,25 +593,20 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glMatrixMode(GL11.GL_MODELVIEW);
 
-        Gdx.gl11.glEnable(GL11.GL_LIGHT1);
-
-        Gdx.gl11.glEnable(GL11.GL_FOG);
-        Gdx.gl11.glFogf (GL11.GL_FOG_DENSITY, 0.15f);
-
-
         // Configure light 1
+
+        Gdx.gl11.glEnable(GL11.GL_LIGHT1);
 
 	    float[] lightDiffuse2 = {0.1f, 0.1f, 0.1f, 1.0f};
 	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_SPECULAR, lightDiffuse2, 0);
 
 	    float[] lightPosition2 = {cam.eye.x  , cam.eye.y + 2f, cam.eye.z , 1.0f};
-
 	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition2, 0);
 
         // Set material on the cubes.
-        float[] cubeMaterialDiffuse = {0.1f, 0.1f, 0.1f, 1.0f};
+        float[] cubeMaterialDiffuse = {0.2f, 0.2f, 0.2f, 1.0f};
         Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_SPECULAR, cubeMaterialDiffuse, 0);
-        Gdx.gl11.glMaterialf(GL11.GL_FRONT_AND_BACK, GL11.GL_SHININESS, 2);
+        Gdx.gl11.glMaterialf(GL11.GL_FRONT_AND_BACK, GL11.GL_SHININESS, 1);
 
         // Draw floor!
         drawFloor();
@@ -604,18 +626,26 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         drawdiamond();
 
         if (flightmode){
+            //lighting making a mess of the letters
             Gdx.gl11.glDisable(GL11.GL_LIGHTING);
+
             this.spriteBatch.setProjectionMatrix(this.secondCamera.combined);
             secondCamera.update();
+
             this.spriteBatch.begin();
             font.setColor(1f,1f,1f,1f);
             font.draw(this.spriteBatch, String.format("Camera position: (%.2f, %.2f, %.2f)",this.cam.eye.x, this.cam.eye.y, this.cam.eye.z), -400, -280);
             font.draw(this.spriteBatch, String.format("Current cell: (%d, %d)",(int)(cam.eye.x/cellsize), (int)(cam.eye.z/cellsize)), -400, -300);
             this.spriteBatch.end();
+
             Gdx.gl11.glEnable(GL11.GL_LIGHTING);
         }
     }
 
+    /**
+     * This is called between levels
+     * Does all the display stuff for the countdown screen
+     */
     public void countdownscreen(){
         long count = (System.currentTimeMillis()-time) / 1000;
 
@@ -637,11 +667,16 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         if (5-count < 0.1f) {
             countdown = false;
+
+            //generate a new maze
             initialize();
         }
     }
 
     @Override
+    /**
+     * The "loop", this is called indefinitely as the program runs.
+     */
     public void render() {
         if (countdown){
             countdownscreen();
@@ -661,7 +696,12 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     }
 
     @Override
+    /**
+     * This is called anytime some key is pressed down.
+     * @param arg0 The key pressed
+     */
     public boolean keyDown(int arg0) {
+        //enable or disable flightmode
         if (arg0 == Input.Keys.P){
             if (flightmode){
                 flightmode = false;
