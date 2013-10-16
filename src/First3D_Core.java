@@ -1,11 +1,8 @@
-import java.nio.FloatBuffer;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL11;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -22,7 +19,6 @@ import mazepack.Queue;
  */
 public class First3D_Core implements ApplicationListener, InputProcessor
 {
-    //TODO: REFACTOR!
     //The eye of the player
     Camera cam;
 
@@ -39,15 +35,13 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private OrthographicCamera secondCamera;
 
     //3D objects
-    private FloatBuffer cubeBuffer;
-    private FloatBuffer diamondBuffer;
-    private FloatBuffer cubeTexBuffer;
+    private Cube cube;
 
     //cheatmode
     private boolean flightmode = false;
 
-    //diamond rotation
-    private int angle = 0;
+    //portal rotation
+    private float angle = 0;
 
     //countdown between levels
     private boolean countdown = false;
@@ -56,7 +50,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     //Different textures for different 3D objects
     private Texture floortexture;
     private Texture walltexture;
-    private Texture diamondtexture;
+    private Texture portaltexture;
+
+    //what level is currently going on
+    private int level = 0;
 
     @Override
     /**
@@ -82,63 +79,15 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
 
         Gdx.gl11.glEnable(GL11.GL_FOG);
-        Gdx.gl11.glFogf (GL11.GL_FOG_DENSITY, 0.15f);
+        Gdx.gl11.glFogf (GL11.GL_FOG_DENSITY, 0.05f);
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
         Gdx.gl11.glLoadIdentity();
 
         Gdx.gl11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-
-        //3D cube
-        this.cubeBuffer = BufferUtils.newFloatBuffer(72);
-        this.cubeBuffer.put(new float[]{-0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
-		        0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
-
-		        0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
-		        0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
-
-		        0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
-		        -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
-
-		        -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
-		        -0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
-
-		        -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f,
-		        0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f,
-
-		        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,
-		        0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f});
-        this.cubeBuffer.rewind();
-
-        //3D diamond
-        this.diamondBuffer = BufferUtils.newFloatBuffer(72);
-        //base = point a, b, c and d
-        //top point = e
-        //bottom point = f
-        this.diamondBuffer.put(new float[]{
-		        0.5f, 0f, 0f, 0f, 0f, 0.5f, 0f, 1f, 0f,     //points abe
-		        0.5f, 0f, 0f, 0f, 0f, 0.5f, 0f, -1f, 0f,    //points abf
-		        0f, 0f, 0.5f, -0.5f, 0f, 0f, 0f, 1f, 0f,     //points bce
-		        0f, 0f, 0.5f, -0.5f, 0f, 0f, 0f, -1f, 0f,     //points bcf
-		        -0.5f, 0f, 0f, 0f, 0f, -0.5f, 0f, 1f, 0f,     //points cde
-		        -0.5f, 0f, 0f, 0f, 0f, -0.5f, 0f, -1f, 0f,     //points cdf
-		        0f, 0f, -0.5f, 0.5f, 0f, 0f, 0f, 1f, 0f,     //points dae
-		        0f, 0f, -0.5f, 0.5f, 0f, 0f, 0f, -1f, 0f,     //points daf
-        });
-        this.diamondBuffer.rewind();
-
-        //Texture buffer
-        this.cubeTexBuffer = BufferUtils.newFloatBuffer(48);
-        this.cubeTexBuffer.put(new float[] {
-                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-                0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f
-        });
-        this.cubeTexBuffer.rewind();
         
+        this.cube = new Cube();
+
         //camera
         cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
 
@@ -146,7 +95,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //assign images to the textures
         walltexture = new Texture("graphics/red-brick.png");
         floortexture = new Texture("graphics/yellow-brick.png");
-        diamondtexture = new Texture("graphics/diamond.png");
+        portaltexture = new Texture("graphics/diamond.png");
 
         //get shit done!
         initialize();
@@ -156,6 +105,9 @@ public class First3D_Core implements ApplicationListener, InputProcessor
      * Does some basic initializing
      */
     private void initialize(){
+        //level up!
+        level++;
+
         //set the initial position of the eye
         cam.eye.x = cam.eye.y = cam.eye.z = 2;
 
@@ -275,8 +227,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
                 cam.slide(0.0f, -10.0f * deltaTime * hyperspeed, 0.0f);
         }
 
-        //increase the angle on the diamond (effectively rotating it)
-        angle++;
+        //increase the angle on the portal blocks (effectively rotating it)
+        angle += 2f * deltaTime;
 
         //check for victory :)
         if (victory()){
@@ -317,8 +269,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
     private boolean victory(){
         if (flightmode) return false;
 
-        if (cam.eye.x < mapsize-cellsize/2+2f && cam.eye.x > mapsize-cellsize/2-2f){
-            if (cam.eye.z < mapsize-cellsize/2+2f && cam.eye.z > mapsize-cellsize/2-2f){
+        if (cam.eye.x < mapsize-cellsize/2+1.5f && cam.eye.x > mapsize-cellsize/2-1.5f){
+            if (cam.eye.z < mapsize-cellsize/2+1.5f && cam.eye.z > mapsize-cellsize/2-1.5f){
                 return true;
             }
         }
@@ -329,16 +281,16 @@ public class First3D_Core implements ApplicationListener, InputProcessor
      * Moves the camera to the nearest allowed x coordinate
      */
     private void rollbackX(){
-        if (cam.eye.x%cellsize <= 1.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + 1.5f;
-        if (cam.eye.x%cellsize >= cellsize-1.5f) cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + cellsize-1.5f;
+        if (cam.eye.x%cellsize <= 1.5f) cam.eye.x = currentXcell()*cellsize + 1.5f;
+        if (cam.eye.x%cellsize >= cellsize-1.5f) cam.eye.x = currentXcell()*cellsize + cellsize-1.5f;
     }
 
     /**
      * Moves the camera to the nearest allowed z coordinate
      */
     private void rollbackZ(){
-        if (cam.eye.z%cellsize <= 1.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + 1.5f;
-        if (cam.eye.z%cellsize >= cellsize-1.5f) cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + cellsize-1.5f;
+        if (cam.eye.z%cellsize <= 1.5f) cam.eye.z = currentZcell()*cellsize + 1.5f;
+        if (cam.eye.z%cellsize >= cellsize-1.5f) cam.eye.z = currentZcell()*cellsize + cellsize-1.5f;
     }
 
     /**
@@ -350,8 +302,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         float x = cam.eye.x%cellsize;
         float z = cam.eye.z%cellsize;
 
-        int current_x_cell = (int)(cam.eye.x/cellsize);
-        int current_z_cell = (int)(cam.eye.z/cellsize);
+        int current_x_cell = currentXcell();
+        int current_z_cell = currentZcell();
 
         //if the eye is not near any wall
         if (x > 1.5f && x < 6.5f){
@@ -409,8 +361,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
      * @return true if a collision has happened, false if not
      */
     private boolean collisionX(){
-        int x = (int)(cam.eye.x/cellsize);
-        int z =(int)(cam.eye.z/cellsize);
+        int x = currentXcell();
+        int z = currentZcell();
 
         //if we are at the edge
         if (x == cellsperside-1){
@@ -438,8 +390,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
      * @return true if a collision has happened, false if not
      */
     private boolean collisionZ(){
-        int x = (int)(cam.eye.x/cellsize);
-        int z =(int)(cam.eye.z/cellsize);
+        int x = currentXcell();
+        int z = currentZcell();
 
         //If we are at the edge
         if (z == cellsperside-1){
@@ -462,47 +414,13 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         return false;
     }
 
-    private void drawBox(float length, float height, float width, float x, float y, float z, Texture tex) {
-        Gdx.gl11.glShadeModel(GL11.GL_SMOOTH);
-        Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, this.cubeBuffer);
-
-        Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
-        Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-
-        tex.bind();
-
-        Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
-
-        Gdx.gl11.glPushMatrix();
-        Gdx.gl11.glTranslatef(x, y, z);
-        Gdx.gl11.glScalef(length, height, width);
-
-        Gdx.gl11.glNormal3f(0.0f, 0.0f, -1.0f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
-        Gdx.gl11.glNormal3f(1.0f, 0.0f, 0.0f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 4, 4);
-        Gdx.gl11.glNormal3f(0.0f, 0.0f, 1.0f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 8, 4);
-        Gdx.gl11.glNormal3f(-1.0f, 0.0f, 0.0f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 12, 4);
-        Gdx.gl11.glNormal3f(0.0f, 1.0f, 0.0f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 16, 4);
-        Gdx.gl11.glNormal3f(0.0f, -1.0f, 0.0f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 20, 4);
-
-        Gdx.gl11.glPopMatrix();
-
-        Gdx.gl11.glDisable(GL11.GL_TEXTURE_2D);
-        Gdx.gl11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-    }
-
     /**
      * Draws the floor of the maze, creating one tile of floor under each cell
      */
     private void drawFloor() {
         for (int i = 0 ; i < cellsperside ; i++){
             for (int j = 0 ; j < cellsperside; j++)
-            drawBox(cellsize,0.1f,cellsize,i*cellsize + cellsize/2,0,j*cellsize + cellsize/2, floortexture);
+            cube.draw(cellsize,0.1f,cellsize,i*cellsize + cellsize/2,0,j*cellsize + cellsize/2, 0f, 0f, 0f, 0f, floortexture);
         }
     }
 
@@ -511,10 +429,10 @@ public class First3D_Core implements ApplicationListener, InputProcessor
      */
     private void drawmazeframe(){
         for (int i = 0; i < cellsperside ; i++){
-            drawBox(0.1f, wallheight, cellsize, mapsize, wallheight/2, cellsize/2 + i*cellsize, walltexture);
-            drawBox(0.1f, wallheight, cellsize, 0f, wallheight / 2, cellsize/2 + i*cellsize, walltexture);
-            drawBox(cellsize, wallheight, 0.1f, cellsize/2 + i*cellsize, wallheight/2, mapsize, walltexture);
-            drawBox(cellsize, wallheight, 0.1f, cellsize/2 + i*cellsize, wallheight/2, 0, walltexture);
+            cube.draw(0.1f, wallheight, cellsize, mapsize, wallheight/2, cellsize/2 + i*cellsize, 0f, 0f, 0f, 0f, walltexture);
+            cube.draw(0.1f, wallheight, cellsize, 0f, wallheight / 2, cellsize/2 + i*cellsize, 0f, 0f, 0f, 0f, walltexture);
+            cube.draw(cellsize, wallheight, 0.1f, cellsize/2 + i*cellsize, wallheight/2, mapsize, 0f, 0f, 0f, 0f,  walltexture); //rotate half circle
+            cube.draw(cellsize, wallheight, 0.1f, cellsize/2 + i*cellsize, wallheight/2, 0f, 0f, 0f, 0f, 0f,  walltexture);   //rotate half circle
         }
     }
 
@@ -526,56 +444,22 @@ public class First3D_Core implements ApplicationListener, InputProcessor
             for (int j = 0; j < cellsperside; j++){
                 //cell[i][j]
                 if (!cells[i][j].eastpath){
-                    drawBox(cellsize,wallheight,0.1f,cellsize*i+cellsize/2, wallheight/2, cellsize*j+cellsize, walltexture);
+                    cube.draw(cellsize,wallheight,0.1f,cellsize*i+cellsize/2, wallheight/2, cellsize*j+cellsize, 0f, 0f, 0f, 0f, walltexture); //rotate half circle
                 }
                 if (!cells[i][j].northpath){
-                    drawBox(0.1f,wallheight,cellsize,cellsize*i+cellsize, wallheight/2, cellsize*j+cellsize/2, walltexture);
+                    cube.draw(0.1f,wallheight,cellsize,cellsize*i+cellsize, wallheight/2, cellsize*j+cellsize/2, 0f, 0f, 0f, 0f, walltexture);
                 }
 
             }
         }
     }
 
-    private void drawdiamond(){
-        Gdx.gl11.glVertexPointer(3, GL11.GL_FLOAT, 0, this.diamondBuffer);
-
-        Gdx.gl11.glShadeModel(GL11.GL_SMOOTH);
-
-        Gdx.gl11.glEnable(GL11.GL_TEXTURE_2D);
-        Gdx.gl11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-
-        diamondtexture.bind();
-
-        Gdx.gl11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, cubeTexBuffer);
-
-
-        Gdx.gl11.glPushMatrix();
-        Gdx.gl11.glTranslatef(mapsize-cellsize/2 ,2, mapsize-cellsize/2);
-        Gdx.gl11.glScalef(2f, 2f, 2f);
-        Gdx.gl11.glRotatef(angle,0,1,0);
-
-        //TODO: Fix the normals!
-        Gdx.gl11.glNormal3f(0.5f, 0.25f, 0.5f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
-        Gdx.gl11.glNormal3f(-0.5f, 0.25f, -0.5f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 3, 3);
-        Gdx.gl11.glNormal3f(0.5f, -0.25f, -0.5f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 6, 3);
-        Gdx.gl11.glNormal3f(-0.5f, -0.25f, 0.5f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 9, 3);
-        Gdx.gl11.glNormal3f(-0.5f, 0.25f, -0.5f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 12, 3);
-        Gdx.gl11.glNormal3f(0.5f, 0.25f, 0.5f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 15, 3);
-        Gdx.gl11.glNormal3f(-0.5f, -0.25f, 0.5f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 18, 3);
-        Gdx.gl11.glNormal3f(0.5f, -0.25f, -0.5f);
-        Gdx.gl11.glDrawArrays(GL11.GL_TRIANGLES, 21, 3);
-
-        Gdx.gl11.glPopMatrix();
-
-        Gdx.gl11.glDisable(GL11.GL_TEXTURE_2D);
-        Gdx.gl11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+    private void drawportal(){
+        for (float i = 0; i < 6.27f ; i += 1.05f){ //6 columns
+            for (float j = 0, k = 0.5f; j < 0.9f ; j += 0.125f, k += 0.5f){ //8 boxes in each column
+                cube.draw(0.2f,0.2f,0.2f,mapsize-cellsize/2 + (float)Math.sin((double)angle + i + j),k, mapsize-cellsize/2 + (float)Math.cos((double)angle + i + j), angle, 0f, 1f, 0f, portaltexture);
+            }
+        }
     }
 
     /**
@@ -590,7 +474,7 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         Gdx.gl11.glMatrixMode(GL11.GL_PROJECTION);
         Gdx.gl11.glLoadIdentity();
-        Gdx.glu.gluPerspective(Gdx.gl11, 90, 1.0f, 1.0f, 300f);
+        Gdx.glu.gluPerspective(Gdx.gl11, 90, 1.0f, 0.5f, 300f);
 
         Gdx.gl11.glMatrixMode(GL11.GL_MODELVIEW);
 
@@ -625,12 +509,12 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         drawcells();
 
         // Set the material on the diamond
-        float[] diamondMaterialDiffuse = {1f, 1f, 1f, 1.0f};
-        Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_SPECULAR, diamondMaterialDiffuse, 0);
-        Gdx.gl11.glMaterialf(GL11.GL_FRONT_AND_BACK, GL11.GL_SHININESS, 14);
+        float[] portalMaterialDiffuse = {1f, 1f, 1f, 1.0f};
+        Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_SPECULAR, portalMaterialDiffuse, 0);
+        Gdx.gl11.glMaterialf(GL11.GL_FRONT_AND_BACK, GL11.GL_SHININESS, 20);
 
-        //draw the diamond
-        drawdiamond();
+        //draw the portal
+        drawportal();
 
         if (flightmode){
             //lighting making a mess of the letters
@@ -641,12 +525,21 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
             this.spriteBatch.begin();
             font.setColor(1f,1f,1f,1f);
+            font.setScale(1,1);
             font.draw(this.spriteBatch, String.format("Camera position: (%.2f, %.2f, %.2f)",this.cam.eye.x, this.cam.eye.y, this.cam.eye.z), -400, -280);
-            font.draw(this.spriteBatch, String.format("Current cell: (%d, %d)",(int)(cam.eye.x/cellsize), (int)(cam.eye.z/cellsize)), -400, -300);
+            font.draw(this.spriteBatch, String.format("Current cell: (%d, %d)",currentXcell(), currentZcell()), -400, -300);
             this.spriteBatch.end();
 
             Gdx.gl11.glEnable(GL11.GL_LIGHTING);
         }
+    }
+
+    private int currentXcell(){
+        return (int)(cam.eye.x/cellsize);
+    }
+
+    private int currentZcell(){
+        return (int)(cam.eye.z/cellsize);
     }
 
     /**
@@ -657,23 +550,29 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         long count = (System.currentTimeMillis()-time) / 1000;
 
         // Clear the screen.
-        Gdx.gl11.glClearColor(0.7f, 0.3f, 0f, 1);
+        Gdx.gl11.glClearColor(0.17f, 0.02f, 0f, 1); //dark orange
         Gdx.gl11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
         Gdx.gl11.glDisable(GL11.GL_LIGHTING);
+        Gdx.gl11.glDisable(GL11.GL_FOG);
+
+        this.spriteBatch.setProjectionMatrix(this.secondCamera.combined);
 
         // Draw the congratulations text on the screen
         this.spriteBatch.begin();
         font.setColor(1f, 1f, 1f, 1f);
-        font.draw(this.spriteBatch, String.format("CONGRATULATIONS!"), -80,100);
-        font.draw(this.spriteBatch, String.format("You found the Diamond !"), -90, 50);
-        font.draw(this.spriteBatch, String.format("Next level starting in %d seconds", 5-count), -120, 0);
+        font.setScale(4,4);
+        font.draw(this.spriteBatch, String.format("CONGRATULATIONS!"), -300,200);
+        font.draw(this.spriteBatch, String.format("You finished level %d", level), -260, 100);
+        font.draw(this.spriteBatch, String.format("Next level starting in %d seconds",5-count), -400, 0);
         this.spriteBatch.end();
 
-        Gdx.gl11.glEnable(GL11.GL_LIGHTING);
 
         if (5-count < 0.1f) {
             countdown = false;
+
+            Gdx.gl11.glEnable(GL11.GL_FOG);
+            Gdx.gl11.glEnable(GL11.GL_LIGHTING);
 
             //generate a new maze
             initialize();
@@ -721,8 +620,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
                 // now place the eye in the dead center of the current box
                 cam.eye.y = wallheight/2;
-                cam.eye.x = (int)(cam.eye.x/cellsize)*cellsize + cellsize/2;
-                cam.eye.z = (int)(cam.eye.z/cellsize)*cellsize + cellsize/2;
+                cam.eye.x = currentXcell()*cellsize + cellsize/2;
+                cam.eye.z = currentZcell()*cellsize + cellsize/2;
 
                 Gdx.gl11.glEnable(GL11.GL_FOG);
                 Gdx.gl11.glDisable(GL11.GL_LIGHT0);
