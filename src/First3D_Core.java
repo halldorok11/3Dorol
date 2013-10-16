@@ -93,8 +93,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
 
         //TODO: change textures ?
         //assign images to the textures
-        walltexture = new Texture("graphics/red-brick.png");
-        floortexture = new Texture("graphics/yellow-brick.png");
+        walltexture = new Texture("graphics/stone.png");
+        floortexture = new Texture("graphics/dirt.jpg");
         portaltexture = new Texture("graphics/diamond.png");
 
         //get shit done!
