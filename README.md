@@ -65,7 +65,7 @@ Each call has two boolean variables: `northpath` and `eastpath` maintained in th
 Each cell can be surrounded by at most 3 walls (since there must be at least one path in/out of it).
 
 ###Maze Generation
-The maze is generated using Prim's algorithm for Minimum Spanning Trees.
+Each maze is generated using Prim's algorithm on a randomly edge-weighted graph.
 
 ###Collision
 The eye has a hitbox of 1,5x1,5 so anytime the eye moves into an object it moves back in the closest "non-collision" coordinate.
