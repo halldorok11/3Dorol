@@ -1,3 +1,4 @@
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.graphics.GL11;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,7 +18,7 @@ import mazepack.Queue;
  * @author Halldór Örn Kristjánsson
  * @author Ólafur Daði Jónsson
  */
-public class First3D_Core implements ApplicationListener, InputProcessor
+public class TheGame implements ApplicationListener, InputProcessor
 {
     //The eye of the player
     Camera cam;
@@ -91,7 +92,6 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         //camera
         cam = new Camera(new Point3D(0.0f, 3.0f, 2.0f), new Point3D(2.0f, 3.0f, 3.0f), new Vector3D(0.0f, 1.0f, 0.0f));
 
-        //TODO: change textures ?
         //assign images to the textures
         walltexture = new Texture("graphics/stone.png");
         floortexture = new Texture("graphics/dirt.jpg");
@@ -562,12 +562,12 @@ public class First3D_Core implements ApplicationListener, InputProcessor
         this.spriteBatch.begin();
         font.setColor(1f, 1f, 1f, 1f);
         font.setScale(4,4);
-        font.draw(this.spriteBatch, String.format("CONGRATULATIONS!"), -300,200);
-        font.draw(this.spriteBatch, String.format("You finished level %d", level), -260, 100);
-        font.draw(this.spriteBatch, String.format("Next level starting in %d seconds",5-count), -400, 0);
+        font.draw(this.spriteBatch, String.format("CONGRATULATIONS!"), -300,100);
+        font.draw(this.spriteBatch, String.format("You finished level %d", level), -260, 0);
+        font.draw(this.spriteBatch, String.format("Next level starting in %d seconds",5-count), -400, -100);
         this.spriteBatch.end();
 
-
+        //at the end of the countdown
         if (5-count < 0.1f) {
             countdown = false;
 
@@ -635,6 +635,8 @@ public class First3D_Core implements ApplicationListener, InputProcessor
                 Gdx.gl11.glEnable(GL11.GL_LIGHT0);
             }
         }
+
+        if (arg0 == Input.Keys.ESCAPE) System.exit(0);
         return false;
     }
 
