@@ -24,10 +24,12 @@ public class TheGame implements ApplicationListener, InputProcessor
 
     //Variables regarding to the size of the map/maze
     private float mapsize; //power of cellsize
-    private float wallheight = 4;
     private float cellsize = 8;  //power of two
     private int cellsperside;
     private Cell [][] cells;
+    private float wallheight = 4;
+    private float wallwidth = 0.2f;
+    private float walllength = cellsize; //so the textures don't overlap on corners
 
     // text
     private SpriteBatch spriteBatch;
@@ -39,6 +41,7 @@ public class TheGame implements ApplicationListener, InputProcessor
 
     //cheatmode
     private boolean flightmode = false;
+    private boolean nightvision = false;
 
     //portal rotation
     private float angle = 0;
@@ -428,10 +431,10 @@ public class TheGame implements ApplicationListener, InputProcessor
      */
     private void drawmazeframe(){
         for (int i = 0; i < cellsperside ; i++){
-            cube.draw(0.1f, wallheight, cellsize, mapsize, wallheight/2, cellsize/2 + i*cellsize, 0f, 0f, 0f, 0f, walltexture);
-            cube.draw(0.1f, wallheight, cellsize, 0f, wallheight / 2, cellsize/2 + i*cellsize, 0f, 0f, 0f, 0f, walltexture);
-            cube.draw(cellsize, wallheight, 0.1f, cellsize/2 + i*cellsize, wallheight/2, mapsize, 0f, 0f, 0f, 0f,  walltexture); //rotate half circle
-            cube.draw(cellsize, wallheight, 0.1f, cellsize/2 + i*cellsize, wallheight/2, 0f, 0f, 0f, 0f, 0f,  walltexture);   //rotate half circle
+            cube.draw(wallwidth, wallheight, walllength, mapsize, wallheight/2, cellsize/2 + i*cellsize, 0f, 0f, 0f, 0f, walltexture);
+            cube.draw(wallwidth, wallheight, walllength, 0f, wallheight / 2, cellsize/2 + i*cellsize, 0f, 0f, 0f, 0f, walltexture);
+            cube.draw(walllength, wallheight, wallwidth, cellsize/2 + i*cellsize, wallheight/2, mapsize, 0f, 0f, 0f, 0f,  walltexture); //rotate half circle
+            cube.draw(walllength, wallheight, wallwidth, cellsize/2 + i*cellsize, wallheight/2, 0f, 0f, 0f, 0f, 0f,  walltexture);   //rotate half circle
         }
     }
 
@@ -443,10 +446,10 @@ public class TheGame implements ApplicationListener, InputProcessor
             for (int j = 0; j < cellsperside; j++){
                 //cell[i][j]
                 if (!cells[i][j].eastpath){
-                    cube.draw(cellsize,wallheight,0.1f,cellsize*i+cellsize/2, wallheight/2, cellsize*j+cellsize, 0f, 0f, 0f, 0f, walltexture); //rotate half circle
+                    cube.draw(walllength,wallheight,wallwidth,cellsize*i+cellsize/2, wallheight/2, cellsize*j+cellsize, 0f, 0f, 0f, 0f, walltexture); //rotate half circle
                 }
                 if (!cells[i][j].northpath){
-                    cube.draw(0.1f,wallheight,cellsize,cellsize*i+cellsize, wallheight/2, cellsize*j+cellsize/2, 0f, 0f, 0f, 0f, walltexture);
+                    cube.draw(wallwidth,wallheight,walllength,cellsize*i+cellsize, wallheight/2, cellsize*j+cellsize/2, 0f, 0f, 0f, 0f, walltexture);
                 }
 
             }
@@ -494,7 +497,9 @@ public class TheGame implements ApplicationListener, InputProcessor
 	    Gdx.gl11.glLightfv(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPosition1, 0);
 
         // Set material on the cubes.
-        float[] cubeMaterialDiffuse = {0.2f, 0.2f, 0.2f, 1.0f};
+        float[] cubeMaterialDiffuse;
+        if (nightvision) {cubeMaterialDiffuse = new float[]{0.1f, 1f, 0.1f, 1.0f};} //reflect all the green color
+        else {cubeMaterialDiffuse = new float[]{0.2f, 0.2f, 0.2f, 1.0f};}
         Gdx.gl11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_SPECULAR, cubeMaterialDiffuse, 0);
         Gdx.gl11.glMaterialf(GL11.GL_FRONT_AND_BACK, GL11.GL_SHININESS, 1);
 
@@ -635,7 +640,21 @@ public class TheGame implements ApplicationListener, InputProcessor
             }
         }
 
-        if (arg0 == Input.Keys.ESCAPE) System.exit(0);
+        if (arg0 == Input.Keys.ESCAPE) {
+            Gdx.app.exit();
+        }
+
+        if (arg0 == Input.Keys.N){
+            if (nightvision) {
+                nightvision = false;
+                Gdx.gl11.glEnable(GL11.GL_FOG);
+            }
+            else {
+                nightvision = true;
+                Gdx.gl11.glDisable(GL11.GL_FOG);
+            }
+        }
+
         return false;
     }
 

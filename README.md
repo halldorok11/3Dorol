@@ -39,6 +39,7 @@ Each time you find it you will be transported to a new bigger level.
 * P : toggle flightmode
   + R : ascend
   + F : descend
+* N : toggle nightvision
 
 ##Development information
 The projects was built in Intellij.
@@ -76,6 +77,7 @@ In regular game mode (not flying) then there is a specular light going straight 
 In flight mode there is an ambient light coming from the eye and no fog for extra vision.
 Flight mode also has increased movement speed.
 
+In nightvision all materials reflect added green color.
 
 ##Other
 If you hit any problems, please contact halldorok11@ru.is and olafurj11@ru.is for more information on running the project.
